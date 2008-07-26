@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 1990-2004 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2005 Info-ZIP.  All rights reserved.
 
   See the accompanying file LICENSE, version 2000-Apr-09 or later
   (the contents of which are also included in unzip.h) for terms of use.
@@ -15,6 +15,7 @@
 
 #include <sys/types.h>          /* off_t, time_t, dev_t, ... */
 #include <sys/stat.h>
+#include <unistd.h>
 
 #ifndef COHERENT
 #  include <fcntl.h>            /* O_BINARY for open() w/o CR/LF translation */
@@ -66,7 +67,7 @@
 #ifdef BSD
 #  include <sys/time.h>
 #  include <sys/timeb.h>
-#  if (defined(_AIX) || defined(__GLIBC__))
+#  if (defined(_AIX) || defined(__GLIBC__) || defined(__GNU__))
 #    include <time.h>
 #  endif
 #else
@@ -77,6 +78,10 @@
 #if (defined(BSD4_4) || (defined(SYSV) && defined(MODERN)))
 #  include <unistd.h>           /* this includes utime.h on SGIs */
 #  if (defined(BSD4_4) || defined(linux) || defined(__GLIBC__))
+#    include <utime.h>
+#    define GOT_UTIMBUF
+#  endif
+#  if (!defined(GOT_UTIMBUF) && defined(__GNU__))
 #    include <utime.h>
 #    define GOT_UTIMBUF
 #  endif
@@ -117,7 +122,7 @@
 #define SCREENLWRAP     1
 #define USE_EF_UT_TIME
 #define SET_DIR_ATTRIB
-#if (!defined(TIMESTAMP) && !defined(NOTIMESTAMP))   /* GRR 970513 */
+#if (!defined(NOTIMESTAMP) && !defined(TIMESTAMP))   /* GRR 970513 */
 #  define TIMESTAMP
 #endif
 #define RESTORE_UIDGID

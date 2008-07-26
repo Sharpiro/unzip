@@ -1,3 +1,96 @@
+unzip (5.52-12) unstable; urgency=medium
+
+  * Fixed stack underflow in unshrink.c. Closes: #454037.
+    Thanks to Christian Spieler for the patch.
+
+ -- Santiago Vila <sanvila@debian.org>  Sat, 26 Jul 2008 16:51:38 +0200
+
+unzip (5.52-11) unstable; urgency=high
+
+  * Apply patch from Tavis Ormandy to address invalid free() calls in
+    the inflate_dynamic() function (CVE-2008-0888).
+
+ -- Santiago Vila <sanvila@debian.org>  Thu, 20 Mar 2008 17:53:00 +0100
+
+unzip (5.52-10) unstable; urgency=low
+
+  * Fixed typo in unzipsfx(1). Thanks to Kevin Ryde. Closes: #419479.
+
+ -- Santiago Vila <sanvila@debian.org>  Mon,  2 Jul 2007 18:08:44 +0200
+
+unzip (5.52-9) unstable; urgency=low
+
+  * Added appropriate compiler flags for Large File Support (Closes: #192253).
+    This procedure is blessed by upstream in the FAQ, and as a result,
+    some .zip archives may now be uncompressed using Debian unzip.
+    For those which still may not, please test unzip 6.0 beta.
+
+ -- Santiago Vila <sanvila@debian.org>  Wed, 30 Aug 2006 10:34:24 +0200
+
+unzip (5.52-8) unstable; urgency=low
+
+  * Modified unix/unxcfg.h to always #include <unistd.h>.
+    This should now work on GNU/kFreeBSD (Closes: #340693).
+
+ -- Santiago Vila <sanvila@debian.org>  Tue, 25 Apr 2006 19:50:24 +0200
+
+unzip (5.52-7) unstable; urgency=medium
+
+  * Fixed buffer overflow when insanely long filenames are given on the
+    command line. Patch from Johnny Lee. Changed some format strings so
+    that they use 512 characters at most. The "right" fix will be in 5.53,
+    but this should work well enough for now. Closes: #349794.
+  * This is CVE-2005-4667.
+
+ -- Santiago Vila <sanvila@debian.org>  Thu, 16 Mar 2006 10:31:20 +0100
+
+unzip (5.52-6) unstable; urgency=medium
+
+  * Symlinks should work again (Closes: #343680). Fix provided by
+    Christian Spieler. Thanks to Carl W. Hoffman for the report.
+
+ -- Santiago Vila <sanvila@debian.org>  Tue, 20 Dec 2005 19:18:32 +0100
+
+unzip (5.52-5) unstable; urgency=low
+
+  * Fixed CAN-2005-2475 the same way it will be fixed in unzip 5.53.
+    Patch extracted from a prerelease provided by upstream.
+  * Changed unzip banner line to reflect the fact that this is
+    a "modified" release. Debian-derived distributions should probably
+    do the same if they deviate from the Debian version.
+
+ -- Santiago Vila <sanvila@debian.org>  Thu, 17 Nov 2005 16:34:24 +0100
+
+unzip (5.52-4) unstable; urgency=medium
+
+  * Fixed toctou vulnerability (Closes: #321927). Modified unix/unix.c
+    to use fchmod() and fchown() instead of chmod() and chown() to change
+    permissions and ownerships on the files actually created by unzip.
+    Patch from Dan Yefimov. CAN-2005-2475.
+
+ -- Santiago Vila <sanvila@debian.org>  Wed,  9 Nov 2005 18:05:02 +0100
+
+unzip (5.52-3) unstable; urgency=low
+
+  * Put manpages in section 1, not 1L.
+  * Fixed more typos (Closes: #309885).
+
+ -- Santiago Vila <sanvila@debian.org>  Wed, 25 May 2005 16:09:02 +0200
+
+unzip (5.52-2) unstable; urgency=low
+
+  * Fixed typos in manpage (Closes: #301915).
+
+ -- Santiago Vila <sanvila@debian.org>  Sun, 24 Apr 2005 19:27:02 +0200
+
+unzip (5.52-1) unstable; urgency=low
+
+  * New upstream release.
+  * Enabled new -W option via WILD_STOP_AT_DIR macro.
+  * Macro USE_UNSHRINK is no longer defined, as it's now the default.
+
+ -- Santiago Vila <sanvila@debian.org>  Tue,  1 Mar 2005 15:33:54 +0100
+
 unzip (5.51-2) unstable; urgency=low
 
   * Added unshrinking support (Closes: #252563).

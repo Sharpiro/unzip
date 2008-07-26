@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 1990-2003 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2004 Info-ZIP.  All rights reserved.
 
   See the accompanying file LICENSE, version 2000-Apr-09 or later
   (the contents of which are also included in unzip.h) for terms of use.
@@ -74,20 +74,20 @@ static ZCONST char Far CannotAllocateBuffers[] =
    /* do_seekable() strings */
 # ifdef UNIX
    static ZCONST char Far CannotFindZipfileDirMsg[] =
-     "%s:  cannot find zipfile directory in one of %s or\n\
-        %s%s.zip, and cannot find %s, period.\n";
+     "%s:  cannot find zipfile directory in one of %.512s or\n\
+        %s%.512s.zip, and cannot find %.512s, period.\n";
    static ZCONST char Far CannotFindEitherZipfile[] =
-     "%s:  cannot find or open %s, %s.zip or %s.\n";
+     "%s:  cannot find or open %.512s, %.512s.zip or %.512s.\n";
 # else /* !UNIX */
 # ifndef AMIGA
    static ZCONST char Far CannotFindWildcardMatch[] =
-     "%s:  cannot find any matches for wildcard specification \"%s\".\n";
+     "%s:  cannot find any matches for wildcard specification \"%.512s\".\n";
 # endif /* !AMIGA */
    static ZCONST char Far CannotFindZipfileDirMsg[] =
-     "%s:  cannot find zipfile directory in %s,\n\
-        %sand cannot find %s, period.\n";
+     "%s:  cannot find zipfile directory in %.512s,\n\
+        %sand cannot find %.512s, period.\n";
    static ZCONST char Far CannotFindEitherZipfile[] =
-     "%s:  cannot find either %s or %s.\n";
+     "%s:  cannot find either %.512s or %.512s.\n";
 # endif /* ?UNIX */
    extern ZCONST char Far Zipnfo[];       /* in unzip.c */
 #ifndef WINDLL
@@ -741,7 +741,7 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
         }
 #endif /* !SFX */
         if ((G.extra_bytes = G.real_ecrec_offset-G.expect_ecrec_offset) <
-            (LONGINT)0)
+            (Z_OFF_T)0)
         {
             Info(slide, 0x401, ((char *)slide, LoadFarString(MissingBytes),
               G.zipfn, (long)(-G.extra_bytes)));
@@ -915,7 +915,7 @@ static int find_ecrec(__G__ searchlen)          /* return PK-class error */
     long searchlen;
 {
     int i, numblks, found=FALSE;
-    LONGINT tail_len;
+    Z_OFF_T tail_len;
     ec_byte_rec byterec;
 
 
@@ -1155,7 +1155,7 @@ int process_cdir_file_hdr(__G)    /* return PK-type error code */
                 break;
 
             default:     /* AMIGA_, FS_HPFS_, FS_NTFS_, MAC_, UNIX_, ATARI_, */
-                break;   /*  FS_VFAT_, BEOS_ (Z_SYSTEM_), THEOS_: */
+                break;   /*  FS_VFAT_, ATHEOS_, BEOS_ (Z_SYSTEM_), THEOS_: */
                          /*  no conversion */
         }
     else if (uO.L_flag > 1)   /* let -LL force lower case for all names */

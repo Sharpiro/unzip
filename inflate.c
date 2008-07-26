@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 1990-2003 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2005 Info-ZIP.  All rights reserved.
 
   See the accompanying file LICENSE, version 2000-Apr-09 or later
   (the contents of which are also included in unzip.h) for terms of use.
@@ -449,9 +449,14 @@ int UZinflate(__G__ is_defl64)
         } else if (err == Z_MEM_ERROR) {
             retval = 3; goto uzinflate_cleanup_exit;
         } else if (err == Z_BUF_ERROR) {                /* DEBUG */
+#ifdef FUNZIP
+            Trace((stderr,
+                   "zlib inflate() did not detect stream end\n"));
+#else
             Trace((stderr,
                    "zlib inflate() did not detect stream end (%s, %s)\n",
                    G.zipfn, G.filename));
+#endif
             if ((!repeated_buf_err) && (G.dstrm.avail_in == 0)) {
                 /* when detecting this problem for the first time,
                    try to provide one fake byte beyond "EOF"... */
@@ -978,6 +983,7 @@ static int inflate_dynamic(__G)
   unsigned l;           /* last length */
   unsigned m;           /* mask for bit lengths table */
   unsigned n;           /* number of lengths to get */
+  struct huft *tlp;     
   struct huft *tl;      /* literal/length code table */
   struct huft *td;      /* distance code table */
   unsigned bl;          /* lookup bits for tl */
@@ -990,6 +996,8 @@ static int inflate_dynamic(__G)
   register unsigned k;  /* number of bits in bit buffer */
   int retval = 0;       /* error code returned: initialized to "no error" */
 
+
+  td = tlp = tl = (struct huft *)NULL;
 
   /* make local bit buffer */
   Trace((stderr, "\ndynamic block"));
@@ -1042,9 +1050,9 @@ static int inflate_dynamic(__G)
   while (i < n)
   {
     NEEDBITS(bl)
-    j = (td = tl + ((unsigned)b & m))->b;
+    j = (tlp = tl + ((unsigned)b & m))->b;
     DUMPBITS(j)
-    j = td->v.n;
+    j = tlp->v.n;
     if (j < 16)                 /* length of code in bits (0..15) */
       ll[i++] = l = j;          /* save last length in l */
     else if (j == 16)           /* repeat last length 3 to 6 times */
@@ -1144,8 +1152,8 @@ static int inflate_dynamic(__G)
 
 cleanup_and_exit:
   /* free the decoding tables, return */
-  huft_free(tl);
-  huft_free(td);
+  if (tl) huft_free(tl);
+  if (td) huft_free(td);
   return retval;
 }
 

@@ -1,4 +1,4 @@
-.\"  Copyright (c) 1990-2004 Info-ZIP.  All rights reserved.
+.\"  Copyright (c) 1990-2005 Info-ZIP.  All rights reserved.
 .\"
 .\"  See the accompanying file LICENSE, version 2000-Apr-09 or later
 .\"  (the contents of which are also included in unzip.h) for terms of use.
@@ -34,7 +34,7 @@
 .in -4n
 ..
 .\" =========================================================================
-.TH ZIPINFO 1L "22 May 2004 (v2.41)" "Info-ZIP"
+.TH ZIPINFO 1 "28 February 2005 (v2.42)" "Info-ZIP"
 .SH NAME
 zipinfo \- list detailed information about a ZIP archive
 .PD
@@ -80,17 +80,20 @@ matches any single character found inside the brackets; ranges are specified
 by a beginning character, a hyphen, and an ending character.  If an exclamation
 point or a caret (`!' or `^') follows the left bracket, then the range of
 characters within the brackets is complemented (that is, anything \fIexcept\fP
-the characters inside the brackets is considered a match).
+the characters inside the brackets is considered a match).  To specify a
+verbatim left bracket, the three-character sequence ``[[]'' has to be used.
 .RE
 .IP
 (Be sure to quote any character that might otherwise be interpreted or
 modified by the operating system, particularly under Unix and VMS.)  If no
 matches are found, the specification is assumed to be a literal filename;
 and if that also fails, the suffix \fC.zip\fR is appended.  Note that
-self-extracting ZIP files are supported; just specify the \fC.exe\fR suffix
-(if any) explicitly.
+self-extracting ZIP files are supported, as with any other ZIP archive;
+just specify the \fC.exe\fR suffix (if any) explicitly.
 .IP [\fIfile(s)\fP]
-An optional list of archive members to be processed.
+An optional list of archive members to be processed, separated by spaces.
+(VMS versions compiled with VMSCLI defined must delimit files with commas
+instead.)
 Regular expressions (wildcards) may be used to match multiple members; see
 above.  Again, be sure to quote expressions that would otherwise be expanded
 or modified by the operating system.
@@ -145,11 +148,13 @@ detected, in which case \fIzipinfo\fP assumes the height is 24 lines.
 .TP
 .B \-t
 list totals for files listed or for all files.  The number of files listed,
-their uncompressed and compressed total sizes, and their overall compression
+their uncompressed and compressed total sizes , and their overall compression
 factor is printed; or, if only the totals line is being printed, the values
-for the entire archive are given.  Note that the total compressed (data)
-size will never match the actual zipfile size, since the latter includes all
-of the internal zipfile headers in addition to the compressed data.
+for the entire archive are given.  The compressed total size does not include
+the 12 additional header bytes of each encrypted entry. Note that the total
+compressed (data) size will never match the actual zipfile size, since the
+latter includes all of the internal zipfile headers in addition to the
+compressed data.
 .TP
 .B \-T
 print the file dates and times in a sortable decimal format (yymmdd.hhmmss).
@@ -244,6 +249,10 @@ format gives the compressed file's size in bytes, instead:
 .PP
 .X "-rw-rws---  1.5 unx    2802 t-     538 defX 11-Aug-91 13:48 perms.2660"
 .PP
+In contrast to the \fIunzip\fP listings, the compressed size figures in
+this listing format denote the complete size of compressed data, including
+the 12 extra header bytes in case of encrypted entries.
+.PP
 Adding the \fB\-T\fP option changes the file date and time to decimal
 format:
 .PP
@@ -252,7 +261,7 @@ format:
 Note that because of limitations in the MS-DOS format used to store file
 times, the seconds field is always rounded to the nearest even second.
 For Unix files this is expected to change in the next major releases of
-\fIzip\fP(1L) and \fIunzip\fP.
+\fIzip\fP(1) and \fIunzip\fP.
 .PP
 In addition to individual file information, a default zipfile listing
 also includes header and trailer lines:
@@ -290,6 +299,12 @@ use of zipfile extra fields--the size of the stored EAs as reported by
 \fIzipinfo\fP may not match the number given by OS/2's \fIdir\fP command:
 OS/2 always reports the number of bytes required in 16-bit format, whereas
 \fIzipinfo\fP always reports the 32-bit storage.)
+.PP
+Again, the compressed size figures of the individual entries include the
+12 extra header bytes for encrypted entries.  In contrast, the archive total
+compressed size and the average compression ratio shown in the summary
+bottom line are calculated \fBwithout\fP the extra 12 header bytes of
+encrypted entries.
 .PD
 .\" =========================================================================
 .SH "ENVIRONMENT OPTIONS"
@@ -335,7 +350,7 @@ of the Unix command \fInice\fP(1).
 As suggested above, the default variable names are ZIPINFO_OPTS for VMS
 (where the symbol used to install \fIzipinfo\fP as a foreign command
 would otherwise be confused with the environment variable), and ZIPINFO
-for all other operating systems.  For compatibility with \fIzip\fP(1L),
+for all other operating systems.  For compatibility with \fIzip\fP(1),
 ZIPINFOOPT is also accepted (don't ask).  If both ZIPINFO and ZIPINFOOPT
 are defined, however, ZIPINFO takes precedence.  \fIunzip\fP's diagnostic
 option (\fB\-v\fP with no zipfile name) can be used to check the values
@@ -470,8 +485,8 @@ be simplified.  (This is not to say that it will be.)
 .PP
 .\" =========================================================================
 .SH "SEE ALSO"
-\fIls\fP(1), \fIfunzip\fP(1L), \fIunzip\fP(1L), \fIunzipsfx\fP(1L),
-\fIzip\fP(1L), \fIzipcloak\fP(1L), \fIzipnote\fP(1L), \fIzipsplit\fP(1L)
+\fIls\fP(1), \fIfunzip\fP(1), \fIunzip\fP(1), \fIunzipsfx\fP(1),
+\fIzip\fP(1), \fIzipcloak\fP(1), \fIzipnote\fP(1), \fIzipsplit\fP(1)
 .PD
 .\" =========================================================================
 .SH URL
