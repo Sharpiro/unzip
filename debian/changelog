@@ -1,3 +1,12 @@
+unzip (6.0-24) unstable; urgency=medium
+
+  * Apply two patches by Mark Adler:
+  - Fix bug in undefer_input() that misplaced the input state.
+  - Detect and reject a zip bomb using overlapped entries. Closes: #931433.
+    Bug discovered by David Fifield. For reference, this is CVE-2019-13232.
+
+ -- Santiago Vila <sanvila@debian.org>  Thu, 11 Jul 2019 18:03:34 +0200
+
 unzip (6.0-23) unstable; urgency=medium
 
   * Fix lame code in fileio.c which parsed 64-bit values incorrectly.
