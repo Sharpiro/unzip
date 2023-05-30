@@ -8,6 +8,16 @@ unzip (6.0-28) unstable; urgency=medium
 
  -- Santiago Vila <sanvila@debian.org>  Sun, 19 Feb 2023 19:02:00 +0100
 
+unzip (6.0-27ubuntu1) kinetic; urgency=medium
+
+  * Merge from Debian unstable (LP: #198740)
+    Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Heinrich Schuchardt <heinrich.schuchardt@canonical.com>  Tue, 23 Aug 2022 14:51:42 +0200
+
 unzip (6.0-27) unstable; urgency=medium
 
   * Apply upstream patch for CVE-2022-0529 and CVE-2022-0530.
@@ -16,6 +26,27 @@ unzip (6.0-27) unstable; urgency=medium
     Closes: #1010355.
 
  -- Santiago Vila <sanvila@debian.org>  Tue, 02 Aug 2022 19:05:00 +0200
+
+unzip (6.0-26ubuntu3) jammy; urgency=high
+
+  * No change rebuild for ppc64el baseline bump.
+
+ -- Julian Andres Klode <juliank@ubuntu.com>  Fri, 25 Mar 2022 10:59:33 +0100
+
+unzip (6.0-26ubuntu2) impish; urgency=medium
+
+  * No-change rebuild to build packages with zstd compression.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 07 Oct 2021 12:25:55 +0200
+
+unzip (6.0-26ubuntu1) hirsute; urgency=low
+
+  * Merge from Debian unstable. Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 29 Jan 2021 12:10:20 -0800
 
 unzip (6.0-26) unstable; urgency=medium
 
@@ -28,6 +59,15 @@ unzip (6.0-26) unstable; urgency=medium
 
  -- Santiago Vila <sanvila@debian.org>  Sun, 10 Jan 2021 15:34:00 +0100
 
+unzip (6.0-25ubuntu1) eoan; urgency=low
+
+  * Merge from Debian unstable.  Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Thu, 15 Aug 2019 23:39:12 -0700
+
 unzip (6.0-25) unstable; urgency=medium
 
   * Apply one more patch by Mark Adler:
@@ -36,6 +76,15 @@ unzip (6.0-25) unstable; urgency=medium
     Reported by Peter Green. Hopefully CVE-2019-13232 is fixed now.
 
  -- Santiago Vila <sanvila@debian.org>  Sat, 27 Jul 2019 18:01:36 +0200
+
+unzip (6.0-24ubuntu1) eoan; urgency=low
+
+  * Merge from Debian unstable.  Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 15 Jul 2019 22:02:02 -0700
 
 unzip (6.0-24) unstable; urgency=medium
 
@@ -46,12 +95,30 @@ unzip (6.0-24) unstable; urgency=medium
 
  -- Santiago Vila <sanvila@debian.org>  Thu, 11 Jul 2019 18:03:34 +0200
 
+unzip (6.0-23ubuntu1) eoan; urgency=low
+
+  * Merge from Debian unstable.  Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 28 May 2019 23:05:51 -0700
+
 unzip (6.0-23) unstable; urgency=medium
 
   * Fix lame code in fileio.c which parsed 64-bit values incorrectly.
     Thanks to David Fifield for the report. Closes: #929502.
 
  -- Santiago Vila <sanvila@debian.org>  Wed, 29 May 2019 00:24:08 +0200
+
+unzip (6.0-22ubuntu1) disco; urgency=low
+
+  * Merge from Debian unstable.  Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 11 Feb 2019 11:32:00 -0800
 
 unzip (6.0-22) unstable; urgency=medium
 
@@ -60,6 +127,15 @@ unzip (6.0-22) unstable; urgency=medium
   * Rules-Requires-Root: no.
 
  -- Santiago Vila <sanvila@debian.org>  Sat, 09 Feb 2019 18:12:00 +0100
+
+unzip (6.0-21ubuntu1) artful; urgency=low
+
+  * Merge from Debian unstable.  Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Thu, 27 Apr 2017 22:23:23 -0700
 
 unzip (6.0-21) unstable; urgency=medium
 
@@ -78,6 +154,22 @@ unzip (6.0-21) unstable; urgency=medium
 
  -- Santiago Vila <sanvila@debian.org>  Sun, 11 Dec 2016 21:03:30 +0100
 
+unzip (6.0-20ubuntu2) artful; urgency=medium
+
+  * No-change rebuild to pick up -fPIE compiler default in static
+    libraries
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 21 Apr 2017 20:58:49 +0000
+
+unzip (6.0-20ubuntu1) xenial; urgency=medium
+
+  * Resynchronise with Debian. Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Fri, 20 Nov 2015 09:16:18 -0500
+
 unzip (6.0-20) unstable; urgency=high
 
   * Update debian/patches/16-fix-integer-underflow-csiz-decrypted to fix
@@ -85,6 +177,22 @@ unzip (6.0-20) unstable; urgency=high
     Thanks to Marc Deslauriers for the fix in Ubuntu.
 
  -- Santiago Vila <sanvila@debian.org>  Mon, 09 Nov 2015 22:15:32 +0100
+
+unzip (6.0-19ubuntu2) xenial; urgency=medium
+
+  * debian/patches/16-fix-integer-underflow-csiz-decrypted: updated to fix
+    regression in handling 0-byte files (LP: #1513293)
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Mon, 09 Nov 2015 08:51:17 -0600
+
+unzip (6.0-19ubuntu1) xenial; urgency=medium
+
+  * Resynchronise with Debian. Remaining changes:
+    - Add patch from archlinux which adds the -O option, allowing a charset
+      to be specified for the proper unzipping of non-Latin and non-Unicode
+      filenames.
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Fri, 23 Oct 2015 15:58:43 +0200
 
 unzip (6.0-19) unstable; urgency=medium
 
@@ -521,3 +629,4 @@ unzip (5.12-12) non-free; urgency=low
   * initial release (used 2 to avoid confusion with old unzip)
 
  -- Carl Streeter <streeter@cae.wisc.edu>  Tue, 5 Sep 1995 00:00:00 +0000
+
