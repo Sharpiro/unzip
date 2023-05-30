@@ -1,7 +1,8 @@
 Source: unzip
 Section: utils
 Priority: optional
-Maintainer: Santiago Vila <sanvila@debian.org>
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+XSBC-Original-Maintainer: Santiago Vila <sanvila@debian.org>
 Standards-Version: 4.6.2
 Build-Depends: debhelper-compat (= 13), libbz2-dev
 Homepage: https://infozip.sourceforge.net/UnZip.html
