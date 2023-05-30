@@ -1,3 +1,12 @@
+unzip (6.0-28ubuntu1) mantic; urgency=medium
+
+  * Merge with Debian unstable. Remaining changes:
+  * d/p/20-unzip60-alt-iconv-utf8.patch: Add patch from archlinux
+    which adds the -O option, allowing a charset to be specified
+    for the proper unzipping of non-Latin and non-Unicode filenames.
+
+ -- Dominik Viererbe <dominik.viererbe@canonical.com>  Tue, 30 May 2023 13:34:18 +0300
+
 unzip (6.0-28) unstable; urgency=medium
 
   * Drop debian/source/lintian-overrides, obsolete since version 6.0-18.
