@@ -1,6 +1,6 @@
 unzip (6.0-28ubuntu1) mantic; urgency=medium
 
-  * Merge from Debian unstable (LP: 2021565). Remaining changes:
+  * Merge from Debian unstable (LP: #2021565). Remaining changes:
     - d/p/20-unzip60-alt-iconv-utf8.patch: Add patch from archlinux
       which adds the -O option, allowing a charset to be specified
       for the proper unzipping of non-Latin and non-Unicode filenames.
