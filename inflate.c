@@ -1454,44 +1454,28 @@ void print_buffer(uch *buffer, int length)
 
 static int inflate_no_flush(__G__ int is_defl64);
 
-/* int UZinflate(__G__ is_defl64) */
-/*     __GDEF */
-/* void inflate_buffer(__G__ is_defl64) */
-    /* __GDEF */
-    /* int is_defl64; */
-void unzip_inflate_buffer(int is_defl64)
+int unzip_inflate_buffer(int is_defl64, uch* in_buffer, unsigned in_buf_len, uch** out_buffer, unsigned* out_buf_len)
 {
-  /* G.incnt = 0; */
-    /* printf("wp before: %u\n", G.wp); */
-    /* G.wp = 1; */
-    /* printf("wp after: %u\n", G.wp); */
-/* input buffer unk  80 */
-/*   80, 75, 3, 4, 20, 0, 2, 0, 8, 0, 215, 181, 115, 37, 200, 141, 58, 98, 118, 0, 0, 0, 126, 0, 0, 0, 5, 0, 17, 0, 110, 111, 116, 101, 115, 85, 84, 13, 0, 7, 198, 145, 84, 54, 112, 81, 83, 54, 88, 236, 68, 53, 13, 141, 49, 10, 194, 64, 16, 69, 251, 64, 238, 240, 59, 171, 108, 64, 244, 4, 138, 16, 16, 3, 38, 54, 118, 3, 153, 117, 23, 55, 187, 97, 102, 154, 120, 122, 183, 250, 143, 87, 188, 63, 135, 168, 240, 49, 49, 234, 110, 36, 134, 226, 97, 172, 182, 210, 151, 221, 47, 110, 240, 69, 240, 202, 239, 74, */
-/*   input pointer first  13 */
-/*     13, 141, 49, 10, 194, 64, 16, 69, 251, 64, 238, 240, 59, 171, 108, 64, 244, 4, 138, 16, 16, 3, 38, 54, 118, 3, 153, 117, 23, 55, 187, 97, 102, 154, 120, 122, 183, 250, 143, 87, 188, 63, 135, 168, 240, 49, 49, 234, 110, 36, 134, 226, 97, 172, 182, 210, 151, 221, 47, 110, 240, 69, 240, 202, 239, 74, 103, 119, 2, 229, 165, 109, 18, 25, 139, 3, 6, 67, 32, 197, 117, 156, 250, 113, 58, 246, 143, 25, 106, 123, 77, 93, 158, 221, 253, 134, 20, 51, 119, 156, 151, 152, 63, 234, 218, 102, 176, 67, 125, 16, 54, 219, 161, 161, 136, 85, 247, 7, */
-  
+  if (out_buffer == NULL)
+  {
+      return 5;
+  }
+  if (out_buf_len == NULL)
+  {
+      return 5;
+  }
+  G.inptr = in_buffer;
+  G.incnt = in_buf_len;
 
-  /* G.inbuf = malloc(1000); */
-  uch inbuf[] = {
-  80, 75, 3, 4, 20, 0, 2, 0, 8, 0, 215, 181, 115, 37, 200, 141, 58, 98, 118, 0, 0, 0, 126, 0, 0, 0, 5, 0, 17, 0, 110, 111, 116, 101, 115, 85, 84, 13, 0, 7, 198, 145, 84, 54, 112, 81, 83, 54, 88, 236, 68, 53, 13, 141, 49, 10, 194, 64, 16, 69, 251, 64, 238, 240, 59, 171, 108, 64, 244, 4, 138, 16, 16, 3, 38, 54, 118, 3, 153, 117, 23, 55, 187, 97, 102, 154, 120, 122, 183, 250, 143, 87, 188, 63, 135, 168, 240, 49, 49, 234, 110, 36, 134, 226, 97, 172, 182, 210, 151, 221, 47, 110, 240, 69, 240, 202, 239, 74,
-  };
-  G.inbuf = inbuf;
-  uch inptr[] = {
-    13, 141, 49, 10, 194, 64, 16, 69, 251, 64, 238, 240, 59, 171, 108, 64, 244, 4, 138, 16, 16, 3, 38, 54, 118, 3, 153, 117, 23, 55, 187, 97, 102, 154, 120, 122, 183, 250, 143, 87, 188, 63, 135, 168, 240, 49, 49, 234, 110, 36, 134, 226, 97, 172, 182, 210, 151, 221, 47, 110, 240, 69, 240, 202, 239, 74, 103, 119, 2, 229, 165, 109, 18, 25, 139, 3, 6, 67, 32, 197, 117, 156, 250, 113, 58, 246, 143, 25, 106, 123, 77, 93, 158, 221, 253, 134, 20, 51, 119, 156, 151, 152, 63, 234, 218, 102, 176, 67, 125, 16, 54, 219, 161, 161, 136, 85, 247, 7,
-  };
-  G.inptr = inptr;
-  /* G.inbuf[0] = 80; */
-  /* G.inptr = malloc(1000); */
-  G.incnt = 118;
+  int inflate_result = inflate_no_flush(__G__ is_defl64);
+  if (inflate_result != 0){
+    return inflate_result;
+  }
 
-  /* printf("input buffer unk  %d\n", *G.inbuf); */
-  /* printf("input pointer first  %d\n", *G.inptr); */
-
-  inflate_no_flush(__G__ is_defl64);
-
-  print_buffer(slide, G.wp);
+  *out_buffer = slide;
+  *out_buf_len = G.wp;
+  return 0;
 }
-
 
 static int inflate_no_flush(__G__ is_defl64)
     __GDEF
@@ -1554,12 +1538,6 @@ static int inflate_no_flush(__G__ is_defl64)
     G.hufts = 0;
 #endif
   printf("input count  %d\n", G.incnt);
-  printf("input buffer unk  %d\n", *G.inbuf);
-  print_buffer(G.inbuf, G.incnt);
-  printf("input pointer first  %d\n", *G.inptr);
-  print_buffer(G.inptr, G.incnt);
-  /* puts("exit early"); */
-  /* exit(99); */
   
     if ((r = inflate_block(__G__ &e)) != 0)
       return r;
@@ -1659,12 +1637,6 @@ int inflate(__G__ is_defl64)
     G.hufts = 0;
 #endif
   printf("input count  %d\n", G.incnt);
-  printf("input buffer unk  %d\n", *G.inbuf);
-  print_buffer(G.inbuf, G.incnt);
-  printf("input pointer first  %d\n", *G.inptr);
-  print_buffer(G.inptr, G.incnt);
-  /* puts("exit early"); */
-  /* exit(99); */
   
     if ((r = inflate_block(__G__ &e)) != 0)
       return r;
