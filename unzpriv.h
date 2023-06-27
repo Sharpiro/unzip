@@ -2661,6 +2661,8 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
 #  define Trace(x)
 #endif
 
+/* #    define Trace(x)   fprintf x */
+
 #ifdef DEBUG_TIME
 #  define TTrace(x)  fprintf x
 #else

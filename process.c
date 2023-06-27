@@ -386,6 +386,7 @@ int process_zipfiles(__G)    /* return PK-type error code */
     NumMissDirs = NumMissFiles = 0;
 
     while ((G.zipfn = do_wild(__G__ G.wildzipfn)) != (char *)NULL) {
+        printf("loop start...\n");
         Trace((stderr, "do_wild( %s ) returns %s\n", G.wildzipfn, G.zipfn));
 
         lastzipfn = G.zipfn;
@@ -398,16 +399,21 @@ int process_zipfiles(__G)    /* return PK-type error code */
             && (NumWinFiles+NumLoseFiles+NumWarnFiles+NumMissFiles) > 0)
             (*G.message)((zvoid *)&G, (uch *)"\n", 1L, 0);
 
+        puts("scope");
         if ((error = do_seekable(__G__ 0)) == PK_WARN)
+        {
             ++NumWarnFiles;
+        }
         else if (error == IZ_DIR)
             ++NumMissDirs;
         else if (error == PK_NOZIP)
             ++NumMissFiles;
         else if (error != PK_OK)
             ++NumLoseFiles;
-        else
+        else{
+            puts("scope");
             ++NumWinFiles;
+        }
 
         Trace((stderr, "do_seekable(0) returns %d\n", error));
         if (error != IZ_DIR && error > error_in_archive)
@@ -420,6 +426,8 @@ int process_zipfiles(__G)    /* return PK-type error code */
 #endif
 
     } /* end while-loop (wildcard zipfiles) */
+
+    puts("loop done");
 
     if ((NumWinFiles + NumWarnFiles + NumLoseFiles) == 0  &&
         (NumMissDirs + NumMissFiles) == 1  &&  lastzipfn != (char *)NULL)
@@ -514,6 +522,7 @@ int process_zipfiles(__G)    /* return PK-type error code */
     Print summary of all zipfiles, assuming zipfile spec was a wildcard (no
     need for a summary if just one zipfile).
   ---------------------------------------------------------------------------*/
+    puts("summary start");
 
 #ifndef SFX
     if (iswild(G.wildzipfn) && uO.qflag < 3
@@ -556,6 +565,7 @@ int process_zipfiles(__G)    /* return PK-type error code */
     /* free allocated memory */
     free_G_buffers(__G);
 
+    printf("process done\n");
     return error_in_archive;
 
 } /* end function process_zipfiles() */
@@ -774,7 +784,9 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
         Info(slide, 0, ((char *)slide, LoadFarString(LogInitline),
           FnFilter1(G.zipfn)));
 # else
+        puts("unix log");
         Info(slide, 0, ((char *)slide, LoadFarString(LogInitline), G.zipfn));
+        puts("unix log");
 # endif
 #endif /* (!WINDLL && !SFX) || !NO_ZIPINFO */
 
@@ -884,6 +896,7 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
     /*-----------------------------------------------------------------------
         Check for empty zipfile and exit now if so.
       -----------------------------------------------------------------------*/
+        puts("check empty file");
 
         if (G.expect_ecrec_offset==0L && G.ecrec.size_central_directory==0) {
             if (uO.zipinfo_mode)
@@ -902,6 +915,7 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
         and try again (necessary for at least some Atari archives created
         with STZip, as well as archives created by J.H. Holm's ZIPSPLIT 1.1).
       -----------------------------------------------------------------------*/
+        puts("compensate");
 
         error = seek_zipf(__G__ G.ecrec.offset_start_central_directory);
         if (error == PK_BADERR) {
@@ -947,6 +961,7 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
         have just read the first entry's signature bytes; then list, extract
         or test member files as instructed, and close the zipfile.
       -----------------------------------------------------------------------*/
+        puts("seek to start");
 
         error = seek_zipf(__G__ G.ecrec.offset_start_central_directory);
         if (error != PK_OK) {
@@ -984,7 +999,11 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
                 error = list_files(__G);              /* LIST 'EM */
             else
 #endif /* !SFX */
+            {
+                puts("extract_or_test_files start");
                 error = extract_or_test_files(__G);   /* EXTRACT OR TEST 'EM */
+                puts("extract_or_test_files end");
+            }
 
             Trace((stderr, "done with extract/list files (error = %d)\n",
                    error));
@@ -996,6 +1015,7 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
     } /* end if (!too_weird_to_continue) */
 #endif
 
+    puts("closing infile");
     CLOSE_INFILE();
 
 #ifdef TIMESTAMP
@@ -1016,6 +1036,8 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
                   LoadFarString(ZipTimeStampSuccess), G.zipfn));
         }
     }
+
+        puts("do_seekable done");
 #endif
     return error_in_archive;
 
