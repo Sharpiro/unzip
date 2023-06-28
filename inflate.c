@@ -1459,7 +1459,7 @@ int unzip_inflate_buffer(
     int is_defl64,
     uch* in_buffer,
     unsigned in_buf_len,
-    uch** out_buffer,
+    uch* out_buffer,
     unsigned* out_buf_len,
     ulg expected_crc
 )
@@ -1469,6 +1469,8 @@ int unzip_inflate_buffer(
 
   G.inptr = in_buffer;
   G.incnt = in_buf_len;
+  uch* temp_buffer = slide;
+  slide = out_buffer;
 
   int inflate_result = inflate_no_flush(__G__ is_defl64);
   if (inflate_result != 0){
@@ -1482,7 +1484,7 @@ int unzip_inflate_buffer(
       return 6;
   }
 
-  *out_buffer = slide;
+  slide = temp_buffer;
   *out_buf_len = G.wp;
   return 0;
 }
