@@ -272,6 +272,7 @@
 /* #define DEBUG */
 #define INFMOD          /* tell inflate.h to include code to be compiled */
 #include "inflate.h"
+#include "crc32.h"
 
 
 /* marker for "unused" huft code, and corresponding check macro */
@@ -1454,22 +1455,31 @@ void print_buffer(uch *buffer, int length)
 
 static int inflate_no_flush(__G__ int is_defl64);
 
-int unzip_inflate_buffer(int is_defl64, uch* in_buffer, unsigned in_buf_len, uch** out_buffer, unsigned* out_buf_len)
+int unzip_inflate_buffer(
+    int is_defl64,
+    uch* in_buffer,
+    unsigned in_buf_len,
+    uch** out_buffer,
+    unsigned* out_buf_len,
+    ulg expected_crc
+)
 {
-  if (out_buffer == NULL)
-  {
-      return 5;
-  }
-  if (out_buf_len == NULL)
-  {
-      return 5;
-  }
+  if (out_buffer == NULL) return 5;
+  if (out_buf_len == NULL) return 5;
+
   G.inptr = in_buffer;
   G.incnt = in_buf_len;
 
   int inflate_result = inflate_no_flush(__G__ is_defl64);
   if (inflate_result != 0){
     return inflate_result;
+  }
+
+  ulg computed_crc = crc32(0, slide, (extent)G.wp);
+  if (computed_crc != expected_crc)
+  {
+      printf("invalid crc, expected '{%lu}', actual '{%lu}'\n", expected_crc, computed_crc);
+      return 6;
   }
 
   *out_buffer = slide;
@@ -1567,6 +1577,7 @@ static int inflate_no_flush(__G__ is_defl64)
   /* flush out redirSlide and return (success, unless final FLUSH failed) */
   /* puts("did we write yet?"); */
   /* exit(99); */
+  printf("log something\n");
   printf("bit buffer %lu\n", G.bb);
   printf("bit buffer length %d\n", G.bk);
   printf("slide length %d\n", G.wp);
