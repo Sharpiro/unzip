@@ -1849,11 +1849,11 @@ static int extract_or_test_member(__G)    /* return PK-type error code */
         case ENHDEFLATED:
 #endif
             if (!uO.tflag && QCOND2) {
-                /* Info(slide, 0, ((char *)slide, LoadFarString(ExtractMsg), */
-                /*   "inflat_zzz_", FnFilter1(G.filename), */
-                /*   (uO.aflag != 1 /1* && G.pInfo->textfile==G.pInfo->textmode *1/)? */
-                /*   "" : (G.pInfo->textfile? txt : bin), uO.cflag? NEWLINE : "")); */
-                printf("inflating: %s\n", G.filename);
+                Info(slide, 0, ((char *)slide, LoadFarString(ExtractMsg),
+                  "inflat_zzz_", FnFilter1(G.filename),
+                  (uO.aflag != 1 /* && G.pInfo->textfile==G.pInfo->textmode */)?
+                  "" : (G.pInfo->textfile? txt : bin), uO.cflag? NEWLINE : ""));
+                /* printf("inflating: %s\n", G.filename); */
                 /* Info("bruh"); */
             }
 #ifndef USE_ZLIB  /* zlib's function is called inflate(), too */

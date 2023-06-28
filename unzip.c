@@ -711,17 +711,17 @@ See \"unzip -hh\" or unzip.txt for more help.  Examples:\n\
 /*  main() / UzpMain() stub  */
 /*****************************/
 
-int MAIN(argc, argv)   /* return PK-type error code (except under VMS) */
-    int argc;
-    char *argv[];
-{
-    int r;
+/* int MAIN(argc, argv)   /1* return PK-type error code (except under VMS) *1/ */
+/*     int argc; */
+/*     char *argv[]; */
+/* { */
+/*     int r; */
 
-    CONSTRUCTGLOBALS();
-    r = unzip(__G__ argc, argv);
-    DESTROYGLOBALS();
-    RETURN(r);
-}
+/*     CONSTRUCTGLOBALS(); */
+/*     r = unzip(__G__ argc, argv); */
+/*     DESTROYGLOBALS(); */
+/*     RETURN(r); */
+/* } */
 
 
 
