@@ -2777,8 +2777,11 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
 #  define FLUSH(w)  flush(__G__ (ulg)(w))
 #  define NEXTBYTE  getc(G.in)   /* redefined in crypt.h if full version */
 #else
-#  define FLUSH(w)  ((G.mem_mode) ? memflush(__G__ redirSlide,(ulg)(w)) \
-                                  : flush(__G__ redirSlide,(ulg)(w),0))
+#  define FLUSH(w)  ((G.mem_mode) == 1 \
+                                  ? memflush(__G__ redirSlide,(ulg)(w)) \
+                                  : (G.mem_mode) == 0 ? \
+                                  flush(__G__ redirSlide,(ulg)(w),0) \
+                                  : 0)
 #  define NEXTBYTE  (G.incnt-- > 0 ? (int)(*G.inptr++) : readbyte(__G))
 #endif
 

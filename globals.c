@@ -159,7 +159,6 @@ Uz_Globs *getGlobalPointer()
 Uz_Globs *globalsCtor()
 {
 #ifdef REENTRANT
-#warning DECLARE 'pG'
     Uz_Globs *pG = (Uz_Globs *)malloc(sizeof(Uz_Globs));
 
     if (!pG)

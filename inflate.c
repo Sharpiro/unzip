@@ -1221,7 +1221,7 @@ static int inflate_dynamic(__G)
 
 
   /* make local bit buffer */
-  Trace((stderr, "\ndynamic block"));
+  Trace((stderr, "\ndynamic block\n"));
   b = G.bb;
   k = G.bk;
 
@@ -1447,111 +1447,6 @@ cleanup_and_exit:
   return retval;
 }
 
-static int inflate_no_flush(__G__ is_defl64)
-    __GDEF
-    int is_defl64;
-{
-  Trace((stderr, "inflate_no_flush func\n"));
-  int e;                /* last block flag */
-  int r;                /* result code */
-#ifdef DEBUG
-  unsigned h = 0;       /* maximum struct huft's malloc'ed */
-#endif
-
-#if (defined(DLL) && !defined(NO_SLIDE_REDIR))
-  printf("redirect_slide: t%d\n", G.redirect_slide);
-  if (G.redirect_slide)
-    wsize = G.redirect_size, redirSlide = G.redirect_buffer;
-  else
-    wsize = WSIZE, redirSlide = slide;   /* how they're #defined if !DLL */
-#endif
-
-  /* wsize = 8388608L; */
-  /* wsize = 65536; */
-
-  Trace((stderr, "wsize: %u\n", wsize));
-
-  /* initialize window, bit buffer */
-  G.wp = 0;
-  G.bk = 0;
-  G.bb = 0;
-
-#ifdef USE_DEFLATE64
-  if (is_defl64) {
-    Trace((stderr, "using deflate 64\n"));
-    G.cplens = cplens64;
-    G.cplext = cplext64;
-    G.cpdext = cpdext64;
-    G.fixed_tl = G.fixed_tl64;
-    G.fixed_bl = G.fixed_bl64;
-    G.fixed_td = G.fixed_td64;
-    G.fixed_bd = G.fixed_bd64;
-  } else {
-    G.cplens = cplens32;
-    G.cplext = cplext32;
-    G.cpdext = cpdext32;
-    G.fixed_tl = G.fixed_tl32;
-    G.fixed_bl = G.fixed_bl32;
-    G.fixed_td = G.fixed_td32;
-    G.fixed_bd = G.fixed_bd32;
-  }
-#else /* !USE_DEFLATE64 */
-  if (is_defl64) {
-    /* This should not happen unless UnZip is built from object files
-     * compiled with inconsistent option setting.  Handle this by
-     * returning with "bad input" error code.
-     */
-    Trace((stderr, "\nThis inflate() cannot handle Deflate64!\n"));
-    return 2;
-  }
-#endif /* ?USE_DEFLATE64 */
-
-  /* decompress until the last block */
-  do {
-#ifdef DEBUG
-    G.hufts = 0;
-#endif
-  printf("input count  %d\n", G.incnt);
-  
-    if ((r = inflate_block(__G__ &e)) != 0)
-      return r;
-#ifdef DEBUG
-    if (G.hufts > h)
-      h = G.hufts;
-#endif
-  } while (!e);
-
-  /* Trace((stderr, "\n%u bytes in Huffman tables (%u/entry)\n", */
-  /*        h * (unsigned)sizeof(struct huft), (unsigned)sizeof(struct huft))); */
-
-#ifdef USE_DEFLATE64
-  if (is_defl64) {
-    G.fixed_tl64 = G.fixed_tl;
-    G.fixed_bl64 = G.fixed_bl;
-    G.fixed_td64 = G.fixed_td;
-    G.fixed_bd64 = G.fixed_bd;
-  } else {
-    G.fixed_tl32 = G.fixed_tl;
-    G.fixed_bl32 = G.fixed_bl;
-    G.fixed_td32 = G.fixed_td;
-    G.fixed_bd32 = G.fixed_bd;
-  }
-#endif
-
-  /* flush out redirSlide and return (success, unless final FLUSH failed) */
-  /* exit(99); */
-  printf("log something\n");
-  printf("bit buffer %lu\n", G.bb);
-  printf("bit buffer length %d\n", G.bk);
-  printf("slide length %d\n", G.wp);
-  printf("slide start byte %d\n", *redirSlide);
-  /* flush(__G__ redirSlide,(ulg)(G.wp),0); */
-  return 0;
-}
-
-/* #define G (*Uz_Globs *)pg); */
-Uz_Globs *pG;
-
 #ifdef MALLOC_WORK
 int unzip_inflate_buffer(
     int is_defl64,
@@ -1568,6 +1463,8 @@ int unzip_inflate_buffer(
 
   if (GG == NULL){
     Trace((stderr, "constructing globals\n"));
+    /* @todo: testing 1 time malloc */
+    /* @todo: what is default buffer sizes? */
     CONSTRUCTGLOBALS();
     /* DESTROYGLOBALS(); */
   }
@@ -1575,23 +1472,31 @@ int unzip_inflate_buffer(
   /* GG->_wsize = 8388608; */
   GG->inptr = in_buffer;
   GG->incnt = in_buf_len;
+  GG->redirect_size = 8388608;
+  GG->redirect_buffer = out_buffer;
+  GG->redirect_slide = 1;
+  /* GG->redirect_data = 1; */
+  GG->mem_mode = 2;
+  /* GG->outsize = 8388608; */
   /* uch* slide = G.area. */
-  uch* temp_buffer = GG->area.Slide;
-  GG->area.Slide = out_buffer;
+  /* uch* temp_buffer = GG->area.Slide; */
+  /* GG->area.Slide = out_buffer; */
 
-  int inflate_result = inflate_no_flush(GG, is_defl64);
+  /* int inflate_result = inflate_no_flush(GG, is_defl64); */
+  int inflate_result = inflate(GG, is_defl64);
   if (inflate_result != 0){
     return inflate_result;
   }
 
-  ulg computed_crc = crc32(0, GG->area.Slide, (extent)GG->wp);
+  /* ulg computed_crc = crc32(0, GG->area.Slide, (extent)GG->wp); */
+  ulg computed_crc = crc32(0, out_buffer, (extent)GG->wp);
   if (computed_crc != expected_crc)
   {
       printf("invalid crc, expected '{%lu}', actual '{%lu}'\n", expected_crc, computed_crc);
       return 6;
   }
 
-  GG->area.Slide = temp_buffer;
+  /* GG->area.Slide = temp_buffer; */
   *out_buf_len = GG->wp;
   return 0;
 }
@@ -1611,11 +1516,14 @@ int inflate(__G__ is_defl64)
 #endif
 
 #if (defined(DLL) && !defined(NO_SLIDE_REDIR))
+  Trace((stderr, "redirect_slide: %d\n", G.redirect_slide));
   if (G.redirect_slide)
     wsize = G.redirect_size, redirSlide = G.redirect_buffer;
   else
     wsize = WSIZE, redirSlide = slide;   /* how they're #defined if !DLL */
 #endif
+
+  Trace((stderr, "wsize: %u\n", wsize));
 
   /* initialize window, bit buffer */
   G.wp = 0;
@@ -1624,7 +1532,7 @@ int inflate(__G__ is_defl64)
 
 #ifdef USE_DEFLATE64
   if (is_defl64) {
-    Trace((stderr, "using deflate 64\n"));
+    Trace((stderr, "using deflate64\n"));
     G.cplens = cplens64;
     G.cplext = cplext64;
     G.cpdext = cpdext64;
@@ -1686,14 +1594,15 @@ int inflate(__G__ is_defl64)
 
   /* flush out redirSlide and return (success, unless final FLUSH failed) */
   /* exit(99); */
-  printf("bit buffer %lu\n", G.bb);
-  printf("bit buffer length %d\n", G.bk);
-  printf("slide length %d\n", G.wp);
-  printf("slide start byte %d\n", *redirSlide);
+  Trace((stderr, "bit buffer %lu\n", G.bb));
+  Trace((stderr, "bit buffer length %d\n", G.bk));
+  Trace((stderr, "slide length (G.wp) %d\n", G.wp));
+  Trace((stderr, "slide start byte %d\n", *redirSlide));
+  Trace((stderr, "redirect length %d\n", G.redirect_size));
   /* flush(__G__ redirSlide,(ulg)(G.wp),0); */
-  printf("flush start\n");
+  Trace((stderr, "flush start\n"));
   int result = (FLUSH(G.wp));
-  printf("flush done\n");
+  Trace((stderr, "flush done\n"));
   /* return (FLUSH(G.wp)); */
   return result;
 }
