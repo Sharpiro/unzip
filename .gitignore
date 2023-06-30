@@ -2,3 +2,4 @@
 *.zip
 unix/flags
 temp_out
+libunzip.a

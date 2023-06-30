@@ -425,6 +425,7 @@ clean:
 	  ttyio_.c crc_i386s.s msdos_.c process_.c unix_.c unzipsfx.c
 	rm -f flags
 	rm -rf ./$(PKGDIR)
+	rm -f libunzip.a
 
 # Package generation interface (by J.Bush).  Originally tested under Sun
 # Solaris 2.x.  Other SVr4s may be very similar and could possibly use this.
@@ -836,6 +837,12 @@ linux_dos:	unix_make
 #	Due to limitations of the cross-compiling package, this has to be
 #	done manually:
 	@echo Copy $(UNZIPS) to your DOS partition and use coff2exe.
+
+linux_static_lib:
+	echo "compiling"
+	gcc -Wl, -fPIE -static -c -DLIB_ONLY -DMALLOC_WORK -I . unzip.c crc32.c crypt.c envargs.c explode.c extract.c fileio.c globals.c inflate.c list.c match.c process.c ttyio.c ubz2err.c unreduce.c unshrink.c zipinfo.c api.c unix/unix.c
+	echo "linking"
+	ar rcs libunzip.a unzip.o crc32.o crypt.o envargs.o explode.o extract.o fileio.o globals.o inflate.o list.o match.o process.o ttyio.o ubz2err.o unreduce.o unshrink.o zipinfo.o api.o unix.o
 
 # Linux ELF shared library (ooo, it's so easy).  This is a test target for
 # now, and it only makes the UnZip/ZipInfo stuff (not fUnZip or UnZipSFX).

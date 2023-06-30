@@ -1455,6 +1455,7 @@ void print_buffer(uch *buffer, int length)
 
 static int inflate_no_flush(__G__ int is_defl64);
 
+#ifdef MALLOC_WORK
 int unzip_inflate_buffer(
     int is_defl64,
     uch* in_buffer,
@@ -1488,6 +1489,7 @@ int unzip_inflate_buffer(
   *out_buf_len = G.wp;
   return 0;
 }
+#endif
 
 static int inflate_no_flush(__G__ is_defl64)
     __GDEF
