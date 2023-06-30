@@ -6,4 +6,5 @@ libunzip.a
 funzip
 unzip
 unzipsfx
+Makefile
 

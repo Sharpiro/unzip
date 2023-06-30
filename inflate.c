@@ -295,8 +295,8 @@
 #endif
 
  /* @todo ... */
-/* #if (defined(DLL) && !defined(NO_SLIDE_REDIR)) */
-#if (defined(LIB_ONLY) && !defined(NO_SLIDE_REDIR))
+#if (defined(DLL) && !defined(NO_SLIDE_REDIR))
+/* #if (defined(LIB_ONLY) && !defined(NO_SLIDE_REDIR)) */
 #  define wsize G._wsize    /* wsize is a variable */
 /* #  define wsize 8388608L    /1* wsize is a variable *1/ */
 #else
@@ -1459,6 +1459,7 @@ static int inflate_no_flush(__G__ is_defl64)
 #endif
 
 #if (defined(DLL) && !defined(NO_SLIDE_REDIR))
+  printf("redirect_slide: t%d\n", G.redirect_slide);
   if (G.redirect_slide)
     wsize = G.redirect_size, redirSlide = G.redirect_buffer;
   else
@@ -1466,6 +1467,7 @@ static int inflate_no_flush(__G__ is_defl64)
 #endif
 
   /* wsize = 8388608L; */
+  /* wsize = 65536; */
 
   Trace((stderr, "wsize: %u\n", wsize));
 
@@ -1547,6 +1549,9 @@ static int inflate_no_flush(__G__ is_defl64)
   return 0;
 }
 
+/* #define G (*Uz_Globs *)pg); */
+Uz_Globs *pG;
+
 #ifdef MALLOC_WORK
 int unzip_inflate_buffer(
     int is_defl64,
@@ -1561,26 +1566,33 @@ int unzip_inflate_buffer(
   if (out_buffer == NULL) return 5;
   if (out_buf_len == NULL) return 5;
 
-  G._wsize = 8388608;
-  G.inptr = in_buffer;
-  G.incnt = in_buf_len;
-  uch* temp_buffer = slide;
-  slide = out_buffer;
+  if (GG == NULL){
+    Trace((stderr, "constructing globals\n"));
+    CONSTRUCTGLOBALS();
+    /* DESTROYGLOBALS(); */
+  }
 
-  int inflate_result = inflate_no_flush(__G__ is_defl64);
+  /* GG->_wsize = 8388608; */
+  GG->inptr = in_buffer;
+  GG->incnt = in_buf_len;
+  /* uch* slide = G.area. */
+  uch* temp_buffer = GG->area.Slide;
+  GG->area.Slide = out_buffer;
+
+  int inflate_result = inflate_no_flush(GG, is_defl64);
   if (inflate_result != 0){
     return inflate_result;
   }
 
-  ulg computed_crc = crc32(0, slide, (extent)G.wp);
+  ulg computed_crc = crc32(0, GG->area.Slide, (extent)GG->wp);
   if (computed_crc != expected_crc)
   {
       printf("invalid crc, expected '{%lu}', actual '{%lu}'\n", expected_crc, computed_crc);
       return 6;
   }
 
-  slide = temp_buffer;
-  *out_buf_len = G.wp;
+  GG->area.Slide = temp_buffer;
+  *out_buf_len = GG->wp;
   return 0;
 }
 #endif
