@@ -294,8 +294,11 @@
 #  define UINT_D64 unsigned
 #endif
 
-#if (defined(DLL) && !defined(NO_SLIDE_REDIR))
+ /* @todo ... */
+/* #if (defined(DLL) && !defined(NO_SLIDE_REDIR)) */
+#if (defined(LIB_ONLY) && !defined(NO_SLIDE_REDIR))
 #  define wsize G._wsize    /* wsize is a variable */
+/* #  define wsize 8388608L    /1* wsize is a variable *1/ */
 #else
 #  define wsize WSIZE       /* wsize is a constant */
 #endif
@@ -410,7 +413,7 @@ int UZinflate(__G__ is_defl64)
     int is_defl64;
 /* decompress an inflated entry using the zlib routines */
 {
-    puts("start UZinflate, BUT WHY IS THIS NOT CALLED");
+    Trace((stderr, "start UZinflate\n"));
     int retval = 0;     /* return code: 0 = "no error" */
     int err=Z_OK;
 #if USE_ZLIB_INFLATCB
@@ -1390,7 +1393,7 @@ static int inflate_block(__G__ e)
   int *e;               /* last block flag */
 /* decompress an inflated block */
 {
-  puts("inflate_block func");
+  Trace((stderr, "inflate_block func\n"));
   unsigned t;           /* block type */
   register ulg b;       /* bit buffer */
   register unsigned k;  /* number of bits in bit buffer */
@@ -1422,17 +1425,17 @@ static int inflate_block(__G__ e)
   /* inflate that block type */
   if (t == 2)
   {
-    puts("dyn block");
+    Trace((stderr, "inflating dyn block\n"));
     return inflate_dynamic(__G);
   }
   if (t == 0)
   {
-    puts("stored block");
+    Trace((stderr, "inflating stored block\n"));
     return inflate_stored(__G);
   }
   if (t == 1)
   {
-    puts("fixed block");
+    Trace((stderr, "inflating fixed block\n"));
     return inflate_fixed(__G);
   }
 
@@ -1444,16 +1447,105 @@ cleanup_and_exit:
   return retval;
 }
 
-void print_buffer(uch *buffer, int length)
+static int inflate_no_flush(__G__ is_defl64)
+    __GDEF
+    int is_defl64;
 {
-    for (int i = 0; i < length; i++)
-    {
-        printf("0x%x, ", buffer[i]);
-    }
-        printf("\n");
-}
+  Trace((stderr, "inflate_no_flush func\n"));
+  int e;                /* last block flag */
+  int r;                /* result code */
+#ifdef DEBUG
+  unsigned h = 0;       /* maximum struct huft's malloc'ed */
+#endif
 
-static int inflate_no_flush(__G__ int is_defl64);
+#if (defined(DLL) && !defined(NO_SLIDE_REDIR))
+  if (G.redirect_slide)
+    wsize = G.redirect_size, redirSlide = G.redirect_buffer;
+  else
+    wsize = WSIZE, redirSlide = slide;   /* how they're #defined if !DLL */
+#endif
+
+  /* wsize = 8388608L; */
+
+  Trace((stderr, "wsize: %u\n", wsize));
+
+  /* initialize window, bit buffer */
+  G.wp = 0;
+  G.bk = 0;
+  G.bb = 0;
+
+#ifdef USE_DEFLATE64
+  if (is_defl64) {
+    Trace((stderr, "using deflate 64\n"));
+    G.cplens = cplens64;
+    G.cplext = cplext64;
+    G.cpdext = cpdext64;
+    G.fixed_tl = G.fixed_tl64;
+    G.fixed_bl = G.fixed_bl64;
+    G.fixed_td = G.fixed_td64;
+    G.fixed_bd = G.fixed_bd64;
+  } else {
+    G.cplens = cplens32;
+    G.cplext = cplext32;
+    G.cpdext = cpdext32;
+    G.fixed_tl = G.fixed_tl32;
+    G.fixed_bl = G.fixed_bl32;
+    G.fixed_td = G.fixed_td32;
+    G.fixed_bd = G.fixed_bd32;
+  }
+#else /* !USE_DEFLATE64 */
+  if (is_defl64) {
+    /* This should not happen unless UnZip is built from object files
+     * compiled with inconsistent option setting.  Handle this by
+     * returning with "bad input" error code.
+     */
+    Trace((stderr, "\nThis inflate() cannot handle Deflate64!\n"));
+    return 2;
+  }
+#endif /* ?USE_DEFLATE64 */
+
+  /* decompress until the last block */
+  do {
+#ifdef DEBUG
+    G.hufts = 0;
+#endif
+  printf("input count  %d\n", G.incnt);
+  
+    if ((r = inflate_block(__G__ &e)) != 0)
+      return r;
+#ifdef DEBUG
+    if (G.hufts > h)
+      h = G.hufts;
+#endif
+  } while (!e);
+
+  /* Trace((stderr, "\n%u bytes in Huffman tables (%u/entry)\n", */
+  /*        h * (unsigned)sizeof(struct huft), (unsigned)sizeof(struct huft))); */
+
+#ifdef USE_DEFLATE64
+  if (is_defl64) {
+    G.fixed_tl64 = G.fixed_tl;
+    G.fixed_bl64 = G.fixed_bl;
+    G.fixed_td64 = G.fixed_td;
+    G.fixed_bd64 = G.fixed_bd;
+  } else {
+    G.fixed_tl32 = G.fixed_tl;
+    G.fixed_bl32 = G.fixed_bl;
+    G.fixed_td32 = G.fixed_td;
+    G.fixed_bd32 = G.fixed_bd;
+  }
+#endif
+
+  /* flush out redirSlide and return (success, unless final FLUSH failed) */
+  /* exit(99); */
+  printf("log something\n");
+  printf("bit buffer %lu\n", G.bb);
+  printf("bit buffer length %d\n", G.bk);
+  printf("slide length %d\n", G.wp);
+  printf("slide start byte %d\n", *redirSlide);
+  /* flush(__G__ redirSlide,(ulg)(G.wp),0); */
+  return 0;
+}
 
 #ifdef MALLOC_WORK
 int unzip_inflate_buffer(
@@ -1465,9 +1557,11 @@ int unzip_inflate_buffer(
     ulg expected_crc
 )
 {
+  Trace((stderr, "unzip_inflate_buffer start\n"));
   if (out_buffer == NULL) return 5;
   if (out_buf_len == NULL) return 5;
 
+  G._wsize = 8388608;
   G.inptr = in_buffer;
   G.incnt = in_buf_len;
   uch* temp_buffer = slide;
@@ -1491,112 +1585,13 @@ int unzip_inflate_buffer(
 }
 #endif
 
-static int inflate_no_flush(__G__ is_defl64)
-    __GDEF
-    int is_defl64;
-/* decompress an inflated entry */
-{
-  puts("inflate func");
-  int e;                /* last block flag */
-  int r;                /* result code */
-#ifdef DEBUG
-  unsigned h = 0;       /* maximum struct huft's malloc'ed */
-#endif
-
-#if (defined(DLL) && !defined(NO_SLIDE_REDIR))
-  if (G.redirect_slide)
-    wsize = G.redirect_size, redirSlide = G.redirect_buffer;
-  else
-    wsize = WSIZE, redirSlide = slide;   /* how they're #defined if !DLL */
-#endif
-
-  /* initialize window, bit buffer */
-  G.wp = 0;
-  G.bk = 0;
-  G.bb = 0;
-
-#ifdef USE_DEFLATE64
-  if (is_defl64) {
-    puts("is deflate 64");
-    G.cplens = cplens64;
-    G.cplext = cplext64;
-    G.cpdext = cpdext64;
-    G.fixed_tl = G.fixed_tl64;
-    G.fixed_bl = G.fixed_bl64;
-    G.fixed_td = G.fixed_td64;
-    G.fixed_bd = G.fixed_bd64;
-  } else {
-    G.cplens = cplens32;
-    G.cplext = cplext32;
-    G.cpdext = cpdext32;
-    G.fixed_tl = G.fixed_tl32;
-    G.fixed_bl = G.fixed_bl32;
-    G.fixed_td = G.fixed_td32;
-    G.fixed_bd = G.fixed_bd32;
-  }
-#else /* !USE_DEFLATE64 */
-  if (is_defl64) {
-    /* This should not happen unless UnZip is built from object files
-     * compiled with inconsistent option setting.  Handle this by
-     * returning with "bad input" error code.
-     */
-    Trace((stderr, "\nThis inflate() cannot handle Deflate64!\n"));
-    return 2;
-  }
-#endif /* ?USE_DEFLATE64 */
-
-  /* decompress until the last block */
-  do {
-    /* puts("inflating block"); */
-#ifdef DEBUG
-    G.hufts = 0;
-#endif
-  printf("input count  %d\n", G.incnt);
-  
-    if ((r = inflate_block(__G__ &e)) != 0)
-      return r;
-#ifdef DEBUG
-    if (G.hufts > h)
-      h = G.hufts;
-#endif
-  } while (!e);
-
-  /* Trace((stderr, "\n%u bytes in Huffman tables (%u/entry)\n", */
-  /*        h * (unsigned)sizeof(struct huft), (unsigned)sizeof(struct huft))); */
-
-#ifdef USE_DEFLATE64
-  if (is_defl64) {
-    G.fixed_tl64 = G.fixed_tl;
-    G.fixed_bl64 = G.fixed_bl;
-    G.fixed_td64 = G.fixed_td;
-    G.fixed_bd64 = G.fixed_bd;
-  } else {
-    G.fixed_tl32 = G.fixed_tl;
-    G.fixed_bl32 = G.fixed_bl;
-    G.fixed_td32 = G.fixed_td;
-    G.fixed_bd32 = G.fixed_bd;
-  }
-#endif
-
-  /* flush out redirSlide and return (success, unless final FLUSH failed) */
-  /* puts("did we write yet?"); */
-  /* exit(99); */
-  printf("log something\n");
-  printf("bit buffer %lu\n", G.bb);
-  printf("bit buffer length %d\n", G.bk);
-  printf("slide length %d\n", G.wp);
-  printf("slide start byte %d\n", *redirSlide);
-  /* flush(__G__ redirSlide,(ulg)(G.wp),0); */
-  return 0;
-}
-
 /* decompress an inflated entry */
 int inflate(__G__ is_defl64)
     __GDEF
     int is_defl64;
 /* decompress an inflated entry */
 {
-  puts("inflate func");
+  Trace((stderr, "inflate func\n"));
   int e;                /* last block flag */
   int r;                /* result code */
 #ifdef DEBUG
@@ -1617,7 +1612,7 @@ int inflate(__G__ is_defl64)
 
 #ifdef USE_DEFLATE64
   if (is_defl64) {
-    puts("is deflate 64");
+    Trace((stderr, "using deflate 64\n"));
     G.cplens = cplens64;
     G.cplext = cplext64;
     G.cpdext = cpdext64;
@@ -1647,7 +1642,6 @@ int inflate(__G__ is_defl64)
 
   /* decompress until the last block */
   do {
-    /* puts("inflating block"); */
 #ifdef DEBUG
     G.hufts = 0;
 #endif
@@ -1679,7 +1673,6 @@ int inflate(__G__ is_defl64)
 #endif
 
   /* flush out redirSlide and return (success, unless final FLUSH failed) */
-  /* puts("did we write yet?"); */
   /* exit(99); */
   printf("bit buffer %lu\n", G.bb);
   printf("bit buffer length %d\n", G.bk);

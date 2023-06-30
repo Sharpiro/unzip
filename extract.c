@@ -571,7 +571,6 @@ int extract_or_test_files(__G)    /* return PK-type error code */
             members_processed++;
 
         } /* end while-loop (adding files to current block) */
-        puts("loop done");
 
         /* save position in central directory so can come back later */
         cd_bufstart = G.cur_zipfile_bufstart;
@@ -583,7 +582,7 @@ int extract_or_test_files(__G)    /* return PK-type error code */
         each one.
       -----------------------------------------------------------------------*/
 
-        puts("extract_or_test_entrylist start");
+        Trace((stderr, "extract_or_test_entrylist start\n"));
         error = extract_or_test_entrylist(__G__ j,
                         &filnum, &num_bad_pwd, &old_extra_bytes,
 #ifdef SET_DIR_ATTRIB
@@ -629,7 +628,6 @@ int extract_or_test_files(__G)    /* return PK-type error code */
 #endif
 
     } /* end while-loop (blocks of files in central directory) */
-    puts("2nd loop done?");
 
 /*---------------------------------------------------------------------------
     Process the list of deferred symlink extractions and finish up
@@ -1857,10 +1855,9 @@ static int extract_or_test_member(__G)    /* return PK-type error code */
                 /* Info("bruh"); */
             }
 #ifndef USE_ZLIB  /* zlib's function is called inflate(), too */
-   puts("registering inflate");
 #  define UZinflate inflate
 #endif
-            puts("calling UZinflate somewhere");
+            Trace((stderr, "calling inflate from extract\n"));
             /* G.mem_mode = 1; */
             printf("mem mode %d\n", G.mem_mode);
             if ((r = UZinflate(__G__
@@ -1885,7 +1882,6 @@ static int extract_or_test_member(__G)    /* return PK-type error code */
                     error = r;
                 }
             }
-            puts("did we write it yet?");
             break;
 
 #ifdef USE_BZIP2

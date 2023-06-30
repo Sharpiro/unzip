@@ -1,5 +1,9 @@
 *.o
 *.zip
-unix/flags
+flags
 temp_out
 libunzip.a
+funzip
+unzip
+unzipsfx
+

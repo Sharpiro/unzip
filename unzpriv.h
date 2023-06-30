@@ -881,11 +881,10 @@
 # define DIR_BLKSIZ 16384   /* use more memory, to reduce long-range seeks */
 #endif
 
+/* #    define WSIZEZ   8388608L  /1* window size--must be a power of two, and *1/ */
 #ifndef WSIZE
 #  ifdef USE_DEFLATE64
-/* #    define WSIZE   65536L  /1* window size--must be a power of two, and *1/ */
-/* @todo: may be too big?  why does this work from cli? */ 
-#    define WSIZE   8388608L  /* window size--must be a power of two, and */
+#    define WSIZE   65536L  /* window size--must be a power of two, and */
 #  else                     /*  at least 64K for PKZip's deflate64 method */
 #    define WSIZE   0x8000  /* window size--must be a power of two, and */
 #  endif                    /*  at least 32K for zip's deflate method */
@@ -2660,10 +2659,8 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
 #    define Trace(x)   fprintf x
 #  endif
 #else
-/* #  define Trace(x) */
-#  define Trace(x)   fprintf x
+#  define Trace(x)
 #endif
-
 
 #ifdef DEBUG_TIME
 #  define TTrace(x)  fprintf x
