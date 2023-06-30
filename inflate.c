@@ -1144,7 +1144,7 @@ static int inflate_fixed(__G)
    Huffman tables. */
 {
   /* if first time, set up tables for fixed blocks */
-  Trace((stderr, "\nliteral block"));
+  Trace((stderr, "\nliteral block\n"));
   if (G.fixed_tl == (struct huft *)NULL)
   {
     int i;                /* temporary variable */
@@ -1463,9 +1463,8 @@ int unzip_inflate_buffer(
 
   if (GG == NULL){
     Trace((stderr, "constructing globals\n"));
-    /* @todo: testing 1 time malloc */
-    /* @todo: what is default buffer sizes? */
     CONSTRUCTGLOBALS();
+    /* @note: seems like we don't need this, only < 1MB when using MALLOC_WORK */
     /* DESTROYGLOBALS(); */
   }
 
@@ -1565,7 +1564,7 @@ int inflate(__G__ is_defl64)
 #ifdef DEBUG
     G.hufts = 0;
 #endif
-  printf("input count  %d\n", G.incnt);
+    Trace((stderr, "decompressing, input count: %d\n", G.incnt));
   
     if ((r = inflate_block(__G__ &e)) != 0)
       return r;
@@ -1675,6 +1674,7 @@ int huft_build(__G__ b, n, s, d, e, t, m)
   int y;                        /* number of dummy codes added */
   unsigned z;                   /* number of entries in current table */
 
+  Trace((stderr, "huft_build func\n"));
 
   /* Generate counts for each bit length */
   el = n > 256 ? b[256] : BMAX; /* set length of EOB code, if any */
@@ -1773,6 +1773,7 @@ int huft_build(__G__ b, n, s, d, e, t, m)
         l[h] = j;               /* set table size in stack */
 
         /* allocate and link in new table */
+        Trace((stderr, "allocating in huft_build func\n"));
         if ((q = (struct huft *)malloc((z + 1)*sizeof(struct huft))) ==
             (struct huft *)NULL)
         {
@@ -1851,12 +1852,15 @@ struct huft *t;         /* table to free */
 
 
   /* Go through linked list, freeing from the malloced (t[-1]) address. */
+  int i = 0;
   p = t;
   while (p != (struct huft *)NULL)
   {
+    i++;
     q = (--p)->v.t;
     free((zvoid *)p);
     p = q;
   }
+  Trace((stderr, "freed '%d' huft tables\n", i));
   return 0;
 }
