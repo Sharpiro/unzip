@@ -375,13 +375,15 @@ int UzpInflateBuffer(
     uch* in_buffer,
     unsigned in_buf_len,
     uch* out_buffer,
-    unsigned* out_buf_len,
+    unsigned out_buffer_max_len,
+    unsigned* out_buf_data_len,
     ulg expected_crc
 )
 {
   Trace((stderr, "unzip_inflate_buffer start\n"));
+  if (in_buffer == NULL) return 5;
   if (out_buffer == NULL) return 5;
-  if (out_buf_len == NULL) return 5;
+  if (out_buf_data_len == NULL) return 5;
 
   if (GG == NULL) {
       Trace((stderr, "constructing globals\n"));
@@ -392,8 +394,7 @@ int UzpInflateBuffer(
   GG->incnt = in_buf_len;
   GG->redirect_slide = 1;
   GG->redirect_buffer = out_buffer;
-  GG->redirect_size = 8388608;
-  GG->mem_mode = 2;
+  GG->redirect_size = out_buffer_max_len;
 
   int inflate_result = inflate(GG, is_defl64);
   if (inflate_result != 0){
@@ -406,7 +407,7 @@ int UzpInflateBuffer(
       return 6;
   }
 
-  *out_buf_len = GG->wp;
+  *out_buf_data_len = GG->wp;
   return 0;
 }
 

@@ -2771,23 +2771,19 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
  *
  */
 
-static int skip_flush()
-{
-  Trace((stderr, "skipping flush\n"));
-  return 0;
-}
 
 #ifdef FUNZIP
 #  define FLUSH(w)  flush(__G__ (ulg)(w))
 #  define NEXTBYTE  getc(G.in)   /* redefined in crypt.h if full version */
-#else
-#  define FLUSH(w)  ((G.mem_mode) == 1 \
-                                  ? memflush(__G__ redirSlide,(ulg)(w)) \
-                                  : (G.mem_mode) == 0 ? \
-                                  flush(__G__ redirSlide,(ulg)(w),0) \
-                                  : skip_flush())
+#else /* !FUNZIP */
+#ifdef SKIPFLUSH
+#  define FLUSH(w) ({ Trace((stderr, "skipping flush\n")); 0; })
+#else /* !SKIPFLUSH */
+#  define FLUSH(w)  ((G.mem_mode) ? memflush(__G__ redirSlide,(ulg)(w)) \
+                                  : flush(__G__ redirSlide,(ulg)(w),0))
+#endif /* ?SKIPFLUSH */
 #  define NEXTBYTE  (G.incnt-- > 0 ? (int)(*G.inptr++) : readbyte(__G))
-#endif
+#endif /* ?FUNZIP */
 
 
 #define READBITS(nbits,zdest) {if(nbits>G.bits_left) {int temp; G.zipeof=1;\

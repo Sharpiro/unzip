@@ -840,7 +840,7 @@ linux_dos:	unix_make
 
 linux_static_lib:
 	echo "compiling"
-	gcc -Wl, -fPIE -static -c -DDLL $(AF) -I . \
+	gcc -Wl, -fPIE -static -c -DDLL -DSKIPFLUSH $(AF) -I . \
 		unzip.c crc32.c crypt.c envargs.c explode.c extract.c fileio.c globals.c \
 		inflate.c list.c match.c process.c ttyio.c ubz2err.c unreduce.c unshrink.c \
 		zipinfo.c api.c unix/unix.c
