@@ -294,11 +294,8 @@
 #  define UINT_D64 unsigned
 #endif
 
- /* @todo ... */
 #if (defined(DLL) && !defined(NO_SLIDE_REDIR))
-/* #if (defined(LIB_ONLY) && !defined(NO_SLIDE_REDIR)) */
 #  define wsize G._wsize    /* wsize is a variable */
-/* #  define wsize 8388608L    /1* wsize is a variable *1/ */
 #else
 #  define wsize WSIZE       /* wsize is a constant */
 #endif
@@ -1461,33 +1458,23 @@ int unzip_inflate_buffer(
   if (out_buffer == NULL) return 5;
   if (out_buf_len == NULL) return 5;
 
-  if (GG == NULL){
+  if (GG == NULL) {
     Trace((stderr, "constructing globals\n"));
     CONSTRUCTGLOBALS();
-    /* @note: seems like we don't need this, only < 1MB when using MALLOC_WORK */
-    /* DESTROYGLOBALS(); */
   }
 
-  /* GG->_wsize = 8388608; */
   GG->inptr = in_buffer;
   GG->incnt = in_buf_len;
   GG->redirect_size = 8388608;
   GG->redirect_buffer = out_buffer;
   GG->redirect_slide = 1;
-  /* GG->redirect_data = 1; */
   GG->mem_mode = 2;
-  /* GG->outsize = 8388608; */
-  /* uch* slide = G.area. */
-  /* uch* temp_buffer = GG->area.Slide; */
-  /* GG->area.Slide = out_buffer; */
 
-  /* int inflate_result = inflate_no_flush(GG, is_defl64); */
   int inflate_result = inflate(GG, is_defl64);
   if (inflate_result != 0){
     return inflate_result;
   }
 
-  /* ulg computed_crc = crc32(0, GG->area.Slide, (extent)GG->wp); */
   ulg computed_crc = crc32(0, out_buffer, (extent)GG->wp);
   if (computed_crc != expected_crc)
   {
@@ -1495,13 +1482,18 @@ int unzip_inflate_buffer(
       return 6;
   }
 
-  /* GG->area.Slide = temp_buffer; */
   *out_buf_len = GG->wp;
   return 0;
 }
 #endif
 
-/* decompress an inflated entry */
+void unzip_cleanup()
+{
+  Trace((stderr, "destroying globals\n"));
+  GETGLOBALS();
+  DESTROYGLOBALS();
+}
+
 int inflate(__G__ is_defl64)
     __GDEF
     int is_defl64;
@@ -1565,7 +1557,7 @@ int inflate(__G__ is_defl64)
     G.hufts = 0;
 #endif
     Trace((stderr, "decompressing, input count: %d\n", G.incnt));
-  
+
     if ((r = inflate_block(__G__ &e)) != 0)
       return r;
 #ifdef DEBUG
@@ -1574,8 +1566,8 @@ int inflate(__G__ is_defl64)
 #endif
   } while (!e);
 
-  /* Trace((stderr, "\n%u bytes in Huffman tables (%u/entry)\n", */
-  /*        h * (unsigned)sizeof(struct huft), (unsigned)sizeof(struct huft))); */
+  Trace((stderr, "\n%u bytes in Huffman tables (%u/entry)\n",
+         h * (unsigned)sizeof(struct huft), (unsigned)sizeof(struct huft)));
 
 #ifdef USE_DEFLATE64
   if (is_defl64) {
@@ -1592,17 +1584,11 @@ int inflate(__G__ is_defl64)
 #endif
 
   /* flush out redirSlide and return (success, unless final FLUSH failed) */
-  /* exit(99); */
-  Trace((stderr, "bit buffer %lu\n", G.bb));
-  Trace((stderr, "bit buffer length %d\n", G.bk));
   Trace((stderr, "slide length (G.wp) %d\n", G.wp));
   Trace((stderr, "slide start byte %d\n", *redirSlide));
-  Trace((stderr, "redirect length %d\n", G.redirect_size));
-  /* flush(__G__ redirSlide,(ulg)(G.wp),0); */
   Trace((stderr, "flush start\n"));
   int result = (FLUSH(G.wp));
   Trace((stderr, "flush done\n"));
-  /* return (FLUSH(G.wp)); */
   return result;
 }
 
@@ -1674,7 +1660,6 @@ int huft_build(__G__ b, n, s, d, e, t, m)
   int y;                        /* number of dummy codes added */
   unsigned z;                   /* number of entries in current table */
 
-  Trace((stderr, "huft_build func\n"));
 
   /* Generate counts for each bit length */
   el = n > 256 ? b[256] : BMAX; /* set length of EOB code, if any */
@@ -1773,7 +1758,6 @@ int huft_build(__G__ b, n, s, d, e, t, m)
         l[h] = j;               /* set table size in stack */
 
         /* allocate and link in new table */
-        Trace((stderr, "allocating in huft_build func\n"));
         if ((q = (struct huft *)malloc((z + 1)*sizeof(struct huft))) ==
             (struct huft *)NULL)
         {
@@ -1852,15 +1836,12 @@ struct huft *t;         /* table to free */
 
 
   /* Go through linked list, freeing from the malloced (t[-1]) address. */
-  int i = 0;
   p = t;
   while (p != (struct huft *)NULL)
   {
-    i++;
     q = (--p)->v.t;
     free((zvoid *)p);
     p = q;
   }
-  Trace((stderr, "freed '%d' huft tables\n", i));
   return 0;
 }

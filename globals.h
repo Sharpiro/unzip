@@ -213,8 +213,6 @@ typedef struct Globals {
      cbList(processExternally);    /* call-back list */
 # endif
 #endif /* DLL */
-     /* @todo ... */
-     /* unsigned _wsize;     /1* sliding window size can be hold in unsigned *1/ */
 
     char **pfnames;
     char **pxnames;

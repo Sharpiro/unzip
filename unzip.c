@@ -711,7 +711,6 @@ See \"unzip -hh\" or unzip.txt for more help.  Examples:\n\
 /*  main() / UzpMain() stub  */
 /*****************************/
 
-#ifndef LIB_ONLY
 int MAIN(argc, argv)   /* return PK-type error code (except under VMS) */
     int argc;
     char *argv[];
@@ -723,7 +722,6 @@ int MAIN(argc, argv)   /* return PK-type error code (except under VMS) */
     DESTROYGLOBALS();
     RETURN(r);
 }
-#endif
 
 
 

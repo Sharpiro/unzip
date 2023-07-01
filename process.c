@@ -386,7 +386,6 @@ int process_zipfiles(__G)    /* return PK-type error code */
     NumMissDirs = NumMissFiles = 0;
 
     while ((G.zipfn = do_wild(__G__ G.wildzipfn)) != (char *)NULL) {
-        printf("loop start...\n");
         Trace((stderr, "do_wild( %s ) returns %s\n", G.wildzipfn, G.zipfn));
 
         lastzipfn = G.zipfn;
@@ -400,9 +399,7 @@ int process_zipfiles(__G)    /* return PK-type error code */
             (*G.message)((zvoid *)&G, (uch *)"\n", 1L, 0);
 
         if ((error = do_seekable(__G__ 0)) == PK_WARN)
-        {
             ++NumWarnFiles;
-        }
         else if (error == IZ_DIR)
             ++NumMissDirs;
         else if (error == PK_NOZIP)
@@ -410,9 +407,7 @@ int process_zipfiles(__G)    /* return PK-type error code */
         else if (error != PK_OK)
             ++NumLoseFiles;
         else
-        {
             ++NumWinFiles;
-        }
 
         Trace((stderr, "do_seekable(0) returns %d\n", error));
         if (error != IZ_DIR && error > error_in_archive)
@@ -562,7 +557,7 @@ int process_zipfiles(__G)    /* return PK-type error code */
     /* free allocated memory */
     free_G_buffers(__G);
 
-    Trace((stderr, "TRACE process done\n"));
+    Trace((stderr, "process done\n"));
     return error_in_archive;
 
 } /* end function process_zipfiles() */

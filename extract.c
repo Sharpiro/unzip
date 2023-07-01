@@ -439,8 +439,8 @@ int extract_or_test_files(__G)    /* return PK-type error code */
          */
 
         while ((j < DIR_BLKSIZ)) {
-            printf("file {%d}\n", j);
             G.pInfo = &G.info[j];
+            Trace((stderr, "file %d - '%s'\n", j, G.filename));
 
             if (readbuf(__G__ G.sig, 4) == 0) {
                 error_in_archive = PK_EOF;
@@ -1050,7 +1050,7 @@ static int extract_or_test_entrylist(__G__ numchunk,
       -----------------------------------------------------------------------*/
 
     for (i = 0; i < numchunk; ++i) {
-        printf("entry list file i: {%d}\n", i);
+        Trace((stderr, "entry list file %d - '%s'\n", i, G.filename));
         (*pfilnum)++;   /* *pfilnum = i + blknum*DIR_BLKSIZ + 1; */
         G.pInfo = &G.info[i];
 #ifdef NOVELL_BUG_FAILSAFE
@@ -1848,18 +1848,14 @@ static int extract_or_test_member(__G)    /* return PK-type error code */
 #endif
             if (!uO.tflag && QCOND2) {
                 Info(slide, 0, ((char *)slide, LoadFarString(ExtractMsg),
-                  "inflat_zzz_", FnFilter1(G.filename),
+                  "inflat", FnFilter1(G.filename),
                   (uO.aflag != 1 /* && G.pInfo->textfile==G.pInfo->textmode */)?
                   "" : (G.pInfo->textfile? txt : bin), uO.cflag? NEWLINE : ""));
-                /* printf("inflating: %s\n", G.filename); */
-                /* Info("bruh"); */
             }
 #ifndef USE_ZLIB  /* zlib's function is called inflate(), too */
 #  define UZinflate inflate
 #endif
-            Trace((stderr, "calling inflate from extract\n"));
-            /* G.mem_mode = 1; */
-            printf("mem mode %d\n", G.mem_mode);
+            Trace((stderr, "\ncalling inflate from extract\n"));
             if ((r = UZinflate(__G__
                                (G.lrec.compression_method == ENHDEFLATED)))
                 != 0) {

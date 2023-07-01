@@ -881,7 +881,6 @@
 # define DIR_BLKSIZ 16384   /* use more memory, to reduce long-range seeks */
 #endif
 
-/* #    define WSIZEZ   8388608L  /1* window size--must be a power of two, and *1/ */
 #ifndef WSIZE
 #  ifdef USE_DEFLATE64
 #    define WSIZE   65536L  /* window size--must be a power of two, and */
@@ -2772,6 +2771,11 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
  *
  */
 
+static int skip_flush()
+{
+  Trace((stderr, "skipping flush\n"));
+  return 0;
+}
 
 #ifdef FUNZIP
 #  define FLUSH(w)  flush(__G__ (ulg)(w))
@@ -2781,7 +2785,7 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
                                   ? memflush(__G__ redirSlide,(ulg)(w)) \
                                   : (G.mem_mode) == 0 ? \
                                   flush(__G__ redirSlide,(ulg)(w),0) \
-                                  : 0)
+                                  : skip_flush())
 #  define NEXTBYTE  (G.incnt-- > 0 ? (int)(*G.inptr++) : readbyte(__G))
 #endif
 
