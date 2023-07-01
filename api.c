@@ -51,6 +51,7 @@
 #endif
 #include "unzvers.h"
 #include <setjmp.h>
+#include "crc32.h"
 
 #ifdef DLL      /* This source file supplies DLL-only interface code. */
 
@@ -366,7 +367,58 @@ int UZ_EXP UzpFileTree(char *name, cbList(callBack), char *cpInclude[],
 #endif /* OS2DLL */
 #endif /* !SFX */
 
+/**
+ * Inflate a zip entry
+ */
+int UzpInflateBuffer(
+    int is_defl64,
+    uch* in_buffer,
+    unsigned in_buf_len,
+    uch* out_buffer,
+    unsigned* out_buf_len,
+    ulg expected_crc
+)
+{
+  Trace((stderr, "unzip_inflate_buffer start\n"));
+  if (out_buffer == NULL) return 5;
+  if (out_buf_len == NULL) return 5;
 
+  if (GG == NULL) {
+      Trace((stderr, "constructing globals\n"));
+      CONSTRUCTGLOBALS();
+  }
+
+  GG->inptr = in_buffer;
+  GG->incnt = in_buf_len;
+  GG->redirect_slide = 1;
+  GG->redirect_buffer = out_buffer;
+  GG->redirect_size = 8388608;
+  GG->mem_mode = 2;
+
+  int inflate_result = inflate(GG, is_defl64);
+  if (inflate_result != 0){
+      return inflate_result;
+  }
+
+  ulg computed_crc = crc32(0, out_buffer, (extent)GG->wp);
+  if (computed_crc != expected_crc) {
+      printf("invalid crc, expected '{%lu}', actual '{%lu}'\n", expected_crc, computed_crc);
+      return 6;
+  }
+
+  *out_buf_len = GG->wp;
+  return 0;
+}
+
+/**
+ * Manually cleanup globals
+ */
+void UzpCleanup()
+{
+    Trace((stderr, "destroying globals\n"));
+    GETGLOBALS();
+    DESTROYGLOBALS();
+}
 
 
 /*---------------------------------------------------------------------------

@@ -272,7 +272,6 @@
 /* #define DEBUG */
 #define INFMOD          /* tell inflate.h to include code to be compiled */
 #include "inflate.h"
-#include "crc32.h"
 
 
 /* marker for "unused" huft code, and corresponding check macro */
@@ -1444,55 +1443,7 @@ cleanup_and_exit:
   return retval;
 }
 
-#ifdef MALLOC_WORK
-int unzip_inflate_buffer(
-    int is_defl64,
-    uch* in_buffer,
-    unsigned in_buf_len,
-    uch* out_buffer,
-    unsigned* out_buf_len,
-    ulg expected_crc
-)
-{
-  Trace((stderr, "unzip_inflate_buffer start\n"));
-  if (out_buffer == NULL) return 5;
-  if (out_buf_len == NULL) return 5;
 
-  if (GG == NULL) {
-    Trace((stderr, "constructing globals\n"));
-    CONSTRUCTGLOBALS();
-  }
-
-  GG->inptr = in_buffer;
-  GG->incnt = in_buf_len;
-  GG->redirect_size = 8388608;
-  GG->redirect_buffer = out_buffer;
-  GG->redirect_slide = 1;
-  GG->mem_mode = 2;
-
-  int inflate_result = inflate(GG, is_defl64);
-  if (inflate_result != 0){
-    return inflate_result;
-  }
-
-  ulg computed_crc = crc32(0, out_buffer, (extent)GG->wp);
-  if (computed_crc != expected_crc)
-  {
-      printf("invalid crc, expected '{%lu}', actual '{%lu}'\n", expected_crc, computed_crc);
-      return 6;
-  }
-
-  *out_buf_len = GG->wp;
-  return 0;
-}
-#endif
-
-void unzip_cleanup()
-{
-  Trace((stderr, "destroying globals\n"));
-  GETGLOBALS();
-  DESTROYGLOBALS();
-}
 
 int inflate(__G__ is_defl64)
     __GDEF
@@ -1586,10 +1537,7 @@ int inflate(__G__ is_defl64)
   /* flush out redirSlide and return (success, unless final FLUSH failed) */
   Trace((stderr, "slide length (G.wp) %d\n", G.wp));
   Trace((stderr, "slide start byte %d\n", *redirSlide));
-  Trace((stderr, "flush start\n"));
-  int result = (FLUSH(G.wp));
-  Trace((stderr, "flush done\n"));
-  return result;
+  return (FLUSH(G.wp));
 }
 
 

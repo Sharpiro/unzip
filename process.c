@@ -886,6 +886,7 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
     /*-----------------------------------------------------------------------
         Check for empty zipfile and exit now if so.
       -----------------------------------------------------------------------*/
+
         if (G.expect_ecrec_offset==0L && G.ecrec.size_central_directory==0) {
             if (uO.zipinfo_mode)
                 Info(slide, 0, ((char *)slide, "%sEmpty zipfile.\n",
@@ -1020,7 +1021,6 @@ static int do_seekable(__G__ lastchance)        /* return PK-type error code */
                   LoadFarString(ZipTimeStampSuccess), G.zipfn));
         }
     }
-
 #endif
     return error_in_archive;
 
