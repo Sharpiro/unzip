@@ -5,16 +5,21 @@ on the ubuntu/devel branch adds some apis to improve the ergonomics of
 inflating in memory data.  If you have a compressed zip entry in memory,
 you can call UzpInflateBuffer to inflate it without dealing with any of
 the other zip components.  You can then call UzpCleanup once you're done
-to free the small amount of memory the library requires.
+to free the small amount of memory the library requires.  This has only
+been tested on Linux.
 
-The primary use case I have for this is inflating 'Deflate64' compressed
-buffers that I already have in memory since this algorithm isn't widely
-supported.
+The primary use case for this is inflating 'Deflate64' compressed
+buffers since this algorithm isn't widely supported.
 
 Added apis in api.c:
 
 - UzpInflateBuffer
 - UzpCleanup
+
+Added a static build step in the unix/Makefile which creates
+a `libunzip.a` static library.
+
+- `make -f unix/Makefile linux_static_lib`
 
 __________________________________________________________________________
 
