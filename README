@@ -1,3 +1,27 @@
+This Fork
+------------
+This fork of Unzip from https://git.launchpad.net/ubuntu/+source/unzip 
+on the ubuntu/devel branch adds some apis to improve the ergonomics of
+inflating in memory data.  If you have a compressed zip entry in memory,
+you can call UzpInflateBuffer to inflate it without dealing with any of
+the other zip components.  You can then call UzpCleanup once you're done
+to free the small amount of memory the library requires.
+
+The primary use case I have for this is inflating 'Deflate64' compressed
+buffers that I already have in memory since this algorithm isn't widely
+supported.
+
+Added apis in api.c:
+
+- UzpInflateBuffer
+- UzpCleanup
+
+__________________________________________________________________________
+
+Original README
+
+__________________________________________________________________________
+
 This is the README file for the 20 April 2009 public release of the
 Info-ZIP group's portable UnZip zipfile-extraction program (and related
 utilities).

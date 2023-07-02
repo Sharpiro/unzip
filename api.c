@@ -21,6 +21,16 @@
     void UzpFreeMemBuffer(UzpBuffer *retstr);
     int UzpUnzipToMemory(char *zip, char *file, UzpOpts *optflgs,
                          UzpCB *UsrFuncts, UzpBuffer *retstr);
+    int UzpInflateBuffer(
+        int is_defl64,
+        uch* in_buffer,
+        unsigned in_buf_len,
+        uch* out_buffer,
+        unsigned out_buffer_max_len,
+        unsigned* out_buf_data_len,
+        ulg expected_crc
+    );
+    void UzpCleanup();
 
   non-WINDLL only (a special WINDLL variant is defined in windll/windll.c):
     int UzpGrep(char *archive, char *file, char *pattern, int cmd, int SkipBin,
