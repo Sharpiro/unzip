@@ -426,6 +426,11 @@ int UzpInflateBuffer(
  */
 void UzpCleanup()
 {
+    if (GG == NULL) {
+        Trace((stderr, "GG null, not freeing\n"));
+        return;
+    }
+
     Trace((stderr, "destroying globals\n"));
     GETGLOBALS();
     DESTROYGLOBALS();
