@@ -434,6 +434,7 @@ void UzpCleanup()
     Trace((stderr, "destroying globals\n"));
     GETGLOBALS();
     DESTROYGLOBALS();
+    GG = NULL;
 }
 
 
