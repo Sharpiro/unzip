@@ -387,7 +387,8 @@ int UzpInflateBuffer(
     uch* out_buffer,
     unsigned out_buffer_max_len,
     unsigned* out_buf_data_len,
-    ulg expected_crc
+    ulg expected_crc,
+    int skip_crc_check
 )
 {
   Trace((stderr, "unzip_inflate_buffer start\n"));
@@ -412,7 +413,7 @@ int UzpInflateBuffer(
   }
 
   ulg computed_crc = crc32(0, out_buffer, (extent)GG->wp);
-  if (computed_crc != expected_crc) {
+  if (!skip_crc_check && computed_crc != expected_crc) {
       printf("invalid crc, expected '{%lu}', actual '{%lu}'\n", expected_crc, computed_crc);
       return 6;
   }
