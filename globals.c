@@ -37,8 +37,6 @@ char end_centloc64_sig[4] = {0, 0, 0x06, 0x07};
 ZCONST char *fnames[2] = {"*", NULL};   /* default filenames vector */
 #endif
 
-//  ulg   GetThreadId          OF((void));
-// ulg GetThreadId(){return 0;}
 
 #ifndef REENTRANT
    Uz_Globs G;

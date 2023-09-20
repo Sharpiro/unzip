@@ -28,9 +28,12 @@
         uch* out_buffer,
         unsigned out_buffer_max_len,
         unsigned* out_buf_data_len,
-        ulg expected_crc
+        ulg expected_crc,
+        int skip_crc_check,
+        Uz_Globs *pG
     );
-    void UzpCleanup();
+    Uz_Globs* UzpConstruct();
+    void UzpCleanup(Uz_Globs* pG);
 
   non-WINDLL only (a special WINDLL variant is defined in windll/windll.c):
     int UzpGrep(char *archive, char *file, char *pattern, int cmd, int SkipBin,
@@ -397,13 +400,6 @@ int UzpInflateBuffer(
   if (out_buffer == NULL) return 5;
   if (out_buf_data_len == NULL) return 5;
 
-  // GETGLOBALS();
-  // if (pG == NULL) {
-  //     Trace((stderr, "constructing globals\n"));
-  //     CONSTRUCTGLOBALS();
-  // }
-  // CONSTRUCTGLOBALS();
-
   pG->inptr = in_buffer;
   pG->incnt = in_buf_len;
   pG->redirect_slide = 1;
@@ -425,25 +421,27 @@ int UzpInflateBuffer(
   return 0;
 }
 
-void* UzpConstruct()
+/**
+ * Construct globals and return pointer
+ */
+Uz_Globs* UzpConstruct()
 {
     CONSTRUCTGLOBALS();
     return pG;
 }
 
-void UzpCleanup(void* pG)
+/**
+ * Destroy globals from given pointer
+ */
+void UzpCleanup(Uz_Globs* pG)
 {
-    // GETGLOBALS();
     if (pG == NULL) {
-        // Trace((stderr, "GG null, not freeing\n"));
-        printf("GG null, not freeing\n");
+        Trace((stderr, "GG null, not freeing\n"));
         return;
     }
 
-    printf("FREEING SOMETHING\n");
     Trace((stderr, "destroying globals\n"));
     DESTROYGLOBALS();
-    // pG = NULL;
 }
 
 
