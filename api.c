@@ -388,7 +388,8 @@ int UzpInflateBuffer(
     unsigned out_buffer_max_len,
     unsigned* out_buf_data_len,
     ulg expected_crc,
-    int skip_crc_check
+    int skip_crc_check,
+    Uz_Globs *pG
 )
 {
   Trace((stderr, "unzip_inflate_buffer start\n"));
@@ -396,46 +397,53 @@ int UzpInflateBuffer(
   if (out_buffer == NULL) return 5;
   if (out_buf_data_len == NULL) return 5;
 
-  if (GG == NULL) {
-      Trace((stderr, "constructing globals\n"));
-      CONSTRUCTGLOBALS();
-  }
+  // GETGLOBALS();
+  // if (pG == NULL) {
+  //     Trace((stderr, "constructing globals\n"));
+  //     CONSTRUCTGLOBALS();
+  // }
+  // CONSTRUCTGLOBALS();
 
-  GG->inptr = in_buffer;
-  GG->incnt = in_buf_len;
-  GG->redirect_slide = 1;
-  GG->redirect_buffer = out_buffer;
-  GG->redirect_size = out_buffer_max_len;
+  pG->inptr = in_buffer;
+  pG->incnt = in_buf_len;
+  pG->redirect_slide = 1;
+  pG->redirect_buffer = out_buffer;
+  pG->redirect_size = out_buffer_max_len;
 
-  int inflate_result = inflate(GG, is_defl64);
+  int inflate_result = inflate(pG, is_defl64);
   if (inflate_result != 0){
       return inflate_result;
   }
 
-  ulg computed_crc = crc32(0, out_buffer, (extent)GG->wp);
+  ulg computed_crc = crc32(0, out_buffer, (extent)pG->wp);
   if (!skip_crc_check && computed_crc != expected_crc) {
       printf("invalid crc, expected '{%lu}', actual '{%lu}'\n", expected_crc, computed_crc);
       return 6;
   }
 
-  *out_buf_data_len = GG->wp;
+  *out_buf_data_len = pG->wp;
   return 0;
 }
 
-/**
- * Manually cleanup globals
- */
-void UzpCleanup()
+void* UzpConstruct()
 {
-    if (GG == NULL) {
-        Trace((stderr, "GG null, not freeing\n"));
+    CONSTRUCTGLOBALS();
+    return pG;
+}
+
+void UzpCleanup(void* pG)
+{
+    // GETGLOBALS();
+    if (pG == NULL) {
+        // Trace((stderr, "GG null, not freeing\n"));
+        printf("GG null, not freeing\n");
         return;
     }
 
+    printf("FREEING SOMETHING\n");
     Trace((stderr, "destroying globals\n"));
-    GETGLOBALS();
     DESTROYGLOBALS();
-    GG = NULL;
+    // pG = NULL;
 }
 
 
