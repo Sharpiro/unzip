@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    ".env": "properties",
+    "*.env": "properties",
+    ".env.sample": "properties",
+    "unzvers.h": "c",
+    "types.h": "c"
+  },
+  "C_Cpp.default.defines": ["DLL=1"]
+}
